@@ -1,6 +1,6 @@
 # Implementation tickets
 
-Approved plan. Tickets 01–09 are implemented and locally verified. No external issues have been published.
+Approved plan. Tickets 01–09 are implemented and locally verified. Ticket 10 final Atlas/demo/timing verification also passed; see [evidence](../demo-verification.md). No external issues have been published.
 
 Each ticket includes its code, meaningful tests, and Postman examples. Test HTTP behavior against an isolated MongoDB database. Test setup commands directly.
 
@@ -30,4 +30,4 @@ The team provisions Atlas and supplies local connection settings. Never commit c
 
 Follow the [requirements](../requirements.md), [architecture](../architecture.md), and [ADRs](../adr/README.md). Exact API details marked proposed in the [API contract](../api-contract.md) still need implementation decisions.
 
-Tickets 10–11 cover final demo/timing evidence and presentation/diagrams. They remain in agent context and are outside this folder.
+Ticket 10 final demo/timing evidence is complete. Ticket 11 presentation/diagrams remains pending. Their detailed tickets remain in agent context.

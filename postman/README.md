@@ -61,3 +61,9 @@ postman collection run postman/admin-bookings.postman_collection.json -e postman
 The 58 requests/174 assertions create two ordinary accounts and one booking per user/administrator. They verify all-owner administrator listing, detail, campground/date edits, immutable ownership, rejected ownership/authority fields, merged date validation, administrator self-only creation, ordinary-user isolation, unauthenticated denials, permanent deletion, and read-back. Dates use the current Bangkok calendar. Automated tests additionally cover stored-role changes with existing tokens and historical stays.
 
 Cleanup deletes only the three bookings created by this run; existing administrator bookings may remain in the final administrator list. Generated accounts remain, so use a disposable database for account cleanup. Committed runtime variables and administrator credentials are empty. Clear local credentials/tokens before exporting. Local functional checks do not establish Atlas timing compliance.
+
+## Complete demo and Atlas timing (ticket 10)
+
+Use `demo.postman_collection.json` and the sanitized `demo.postman_environment.json` template. The integrated flow reuses the feature scenarios and adds twenty-booking timing coverage. From `backend/`, run `npm run verify:demo` to build/start the backend and execute three sequential local Postman CLI runs with sanitized evidence and run-owned booking cleanup. Requires the configured database and administrator credentials in local `.env`, plus Postman CLI on PATH.
+
+See [full instructions, measured results, retained records, and interrupted-run recovery](../docs/demo-verification.md). Each complete run retains two generated users and one campground; all run bookings are removed.

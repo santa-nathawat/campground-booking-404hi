@@ -1,0 +1,9 @@
+{
+  "scenario": "Recover one journaled booking while preserving an unrelated booking",
+  "startedAt": "2026-11-16T14:35:28.280Z",
+  "recoveryExitCode": 0,
+  "targetRemoved": true,
+  "unrelatedBookingPreserved": true,
+  "passed": true,
+  "finishedAt": "2026-11-16T14:35:31.619Z"
+}

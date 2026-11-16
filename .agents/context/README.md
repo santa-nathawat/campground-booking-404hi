@@ -4,6 +4,8 @@ Detailed notes for agents. Human docs stay in `docs/`; the root README is the hu
 
 ## Read by task
 
+- Repeating the final demo, checking Atlas timing, or recovering an interrupted run: [ticket 10 evidence and procedures](../../docs/demo-verification.md).
+
 - Logout contract, client-token clearing, copied-JWT demonstration, and local verification: [ticket 09 evidence](logout-implementation.md).
 
 - Booking CRUD conventions, historical-edit decision, and local verification: [tickets 04–07 evidence](bookings-implementation.md).

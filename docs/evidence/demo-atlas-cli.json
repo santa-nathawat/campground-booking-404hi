@@ -1,0 +1,2282 @@
+{
+  "startedAt": "2026-11-16T14:34:08.816Z",
+  "runtime": "v26.12.1",
+  "machine": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M5",
+    "memoryGiB": 16
+  },
+  "network": "Local loopback HTTP; database uses the host network to configured Atlas. Connection type/location not independently verified.",
+  "runner": {
+    "name": "Postman CLI",
+    "version": "1.76.0"
+  },
+  "atlas": {
+    "region": "unverified",
+    "tier": "unverified"
+  },
+  "runs": [
+    {
+      "runId": "537a7e89-1fef-4ade-83fb-4e38232b90dd",
+      "condition": "First collection after application restart and administrator preflight; Atlas already connected, not Atlas cold start",
+      "before": {
+        "users": 18,
+        "campgrounds": 9,
+        "bookings": 0
+      },
+      "requests": [
+        {
+          "name": "Log in provisioned administrator",
+          "method": "POST",
+          "status": 200,
+          "ms": 102
+        },
+        {
+          "name": "Register user A",
+          "method": "POST",
+          "status": 201,
+          "ms": 91
+        },
+        {
+          "name": "Register user B",
+          "method": "POST",
+          "status": 201,
+          "ms": 94
+        },
+        {
+          "name": "Login",
+          "method": "POST",
+          "status": 200,
+          "ms": 99
+        },
+        {
+          "name": "Duplicate email",
+          "method": "POST",
+          "status": 409,
+          "ms": 87
+        },
+        {
+          "name": "Missing telephone",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Reject administrator registration",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Incorrect password",
+          "method": "POST",
+          "status": 401,
+          "ms": 96
+        },
+        {
+          "name": "Missing token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Invalid token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject ordinary user creation",
+          "method": "POST",
+          "status": 403,
+          "ms": 40
+        },
+        {
+          "name": "Reject missing required field",
+          "method": "POST",
+          "status": 400,
+          "ms": 37
+        },
+        {
+          "name": "Reject unexpected field",
+          "method": "POST",
+          "status": 400,
+          "ms": 35
+        },
+        {
+          "name": "Create campground as administrator",
+          "method": "POST",
+          "status": 201,
+          "ms": 76
+        },
+        {
+          "name": "Ordinary user sees created campground",
+          "method": "GET",
+          "status": 200,
+          "ms": 78
+        },
+        {
+          "name": "Read created campground detail",
+          "method": "GET",
+          "status": 200,
+          "ms": 71
+        },
+        {
+          "name": "Select seeded campgrounds",
+          "method": "GET",
+          "status": 200,
+          "ms": 74
+        },
+        {
+          "name": "Create personal booking for A",
+          "method": "POST",
+          "status": 201,
+          "ms": 181
+        },
+        {
+          "name": "Create personal booking for B",
+          "method": "POST",
+          "status": 201,
+          "ms": 153
+        },
+        {
+          "name": "Create personal booking for ADMIN",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 01",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 02",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 03",
+          "method": "POST",
+          "status": 201,
+          "ms": 319
+        },
+        {
+          "name": "Create timing booking 04",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 05",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 06",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 07",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Create timing booking 08",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 09",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 10",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 11",
+          "method": "POST",
+          "status": 201,
+          "ms": 153
+        },
+        {
+          "name": "Create timing booking 12",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Create timing booking 13",
+          "method": "POST",
+          "status": 201,
+          "ms": 155
+        },
+        {
+          "name": "Create timing booking 14",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 15",
+          "method": "POST",
+          "status": 201,
+          "ms": 160
+        },
+        {
+          "name": "Create timing booking 16",
+          "method": "POST",
+          "status": 201,
+          "ms": 143
+        },
+        {
+          "name": "Create timing booking 17",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Administrator lists all run bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 117
+        },
+        {
+          "name": "Clean timing booking 01",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Clean timing booking 02",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 03",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "Clean timing booking 04",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 05",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 115
+        },
+        {
+          "name": "Clean timing booking 06",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 07",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 08",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 116
+        },
+        {
+          "name": "Clean timing booking 09",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 10",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 11",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 12",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 13",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "Clean timing booking 14",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Clean timing booking 15",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 117
+        },
+        {
+          "name": "Clean timing booking 16",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Clean timing booking 17",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Read deleted own timing booking",
+          "method": "GET",
+          "status": 404,
+          "ms": 70
+        },
+        {
+          "name": "List only A bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "A denied GET for B",
+          "method": "GET",
+          "status": 403,
+          "ms": 73
+        },
+        {
+          "name": "A denied PUT for B",
+          "method": "PUT",
+          "status": 403,
+          "ms": 73
+        },
+        {
+          "name": "A denied DELETE for B",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "A denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "List only B bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "B denied GET for A",
+          "method": "GET",
+          "status": 403,
+          "ms": 72
+        },
+        {
+          "name": "B denied PUT for A",
+          "method": "PUT",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "B denied DELETE for A",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 71
+        },
+        {
+          "name": "B denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 71
+        },
+        {
+          "name": "B denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "B denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "Read own booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Reject owner transfer",
+          "method": "PUT",
+          "status": 400,
+          "ms": 70
+        },
+        {
+          "name": "Reject invalid merged duration",
+          "method": "PUT",
+          "status": 400,
+          "ms": 71
+        },
+        {
+          "name": "Change campground only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 182
+        },
+        {
+          "name": "Change dates only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 185
+        },
+        {
+          "name": "Read updated booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 105
+        },
+        {
+          "name": "Reject zero stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 35
+        },
+        {
+          "name": "Reject negative stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 35
+        },
+        {
+          "name": "Reject four stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 37
+        },
+        {
+          "name": "Reject past stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 35
+        },
+        {
+          "name": "Restore A dates before administrator scenarios",
+          "method": "PUT",
+          "status": 200,
+          "ms": 184
+        },
+        {
+          "name": "Administrator reads A",
+          "method": "GET",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Administrator changes A campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 178
+        },
+        {
+          "name": "Administrator changes A dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 183
+        },
+        {
+          "name": "Read persisted A update",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Administrator reads B",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Administrator changes B campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 181
+        },
+        {
+          "name": "Administrator changes B dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 185
+        },
+        {
+          "name": "Read persisted B update",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Administrator reads ADMIN",
+          "method": "GET",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "Administrator changes ADMIN campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 183
+        },
+        {
+          "name": "Administrator changes ADMIN dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 186
+        },
+        {
+          "name": "Read persisted ADMIN update",
+          "method": "GET",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Reject administrator owner injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 71
+        },
+        {
+          "name": "Reject administrator ownerId injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 79
+        },
+        {
+          "name": "Reject administrator role injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 100
+        },
+        {
+          "name": "Reject invalid merged administrator edit",
+          "method": "PUT",
+          "status": 400,
+          "ms": 70
+        },
+        {
+          "name": "Read booking after rejected administrator edits",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Reject administrator booking on behalf of A",
+          "method": "POST",
+          "status": 400,
+          "ms": 36
+        },
+        {
+          "name": "Reject administrator four-night personal booking",
+          "method": "POST",
+          "status": 400,
+          "ms": 35
+        },
+        {
+          "name": "Reject unauthenticated POST /bookings",
+          "method": "POST",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings/{{BOOKING_ID}}",
+          "method": "GET",
+          "status": 401,
+          "ms": 0
+        },
+        {
+          "name": "Reject unauthenticated PUT /bookings/{{BOOKING_ID}}",
+          "method": "PUT",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated DELETE /bookings/{{BOOKING_ID}}",
+          "method": "DELETE",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Administrator deletes A booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Deleted A booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 73
+        },
+        {
+          "name": "Repeated A deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 70
+        },
+        {
+          "name": "Administrator deletes B booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Deleted B booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 72
+        },
+        {
+          "name": "Repeated B deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 70
+        },
+        {
+          "name": "Administrator deletes ADMIN booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Deleted ADMIN booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 72
+        },
+        {
+          "name": "Repeated ADMIN deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 72
+        },
+        {
+          "name": "Confirm empty A list",
+          "method": "GET",
+          "status": 200,
+          "ms": 72
+        },
+        {
+          "name": "Confirm empty B list",
+          "method": "GET",
+          "status": 200,
+          "ms": 71
+        },
+        {
+          "name": "Confirm run bookings removed from administrator list",
+          "method": "GET",
+          "status": 200,
+          "ms": 71
+        },
+        {
+          "name": "Logout",
+          "method": "GET",
+          "status": 200,
+          "ms": 37
+        },
+        {
+          "name": "Current user after logout",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Copied unexpired token remains valid",
+          "method": "GET",
+          "status": 200,
+          "ms": 33
+        },
+        {
+          "name": "Logout without credentials",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        }
+      ],
+      "assertions": 403,
+      "failures": [],
+      "exitCode": 0,
+      "after": {
+        "users": 20,
+        "campgrounds": 10,
+        "bookings": 0
+      },
+      "maxMs": 319,
+      "requestCount": 121
+    },
+    {
+      "runId": "27c0e735-21e9-4051-a059-9efa4b766173",
+      "condition": "Repeated collection on same backend",
+      "before": {
+        "users": 20,
+        "campgrounds": 10,
+        "bookings": 0
+      },
+      "requests": [
+        {
+          "name": "Log in provisioned administrator",
+          "method": "POST",
+          "status": 200,
+          "ms": 94
+        },
+        {
+          "name": "Register user A",
+          "method": "POST",
+          "status": 201,
+          "ms": 90
+        },
+        {
+          "name": "Register user B",
+          "method": "POST",
+          "status": 201,
+          "ms": 90
+        },
+        {
+          "name": "Login",
+          "method": "POST",
+          "status": 200,
+          "ms": 96
+        },
+        {
+          "name": "Duplicate email",
+          "method": "POST",
+          "status": 409,
+          "ms": 86
+        },
+        {
+          "name": "Missing telephone",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Reject administrator registration",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Incorrect password",
+          "method": "POST",
+          "status": 401,
+          "ms": 98
+        },
+        {
+          "name": "Missing token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Invalid token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject ordinary user creation",
+          "method": "POST",
+          "status": 403,
+          "ms": 37
+        },
+        {
+          "name": "Reject missing required field",
+          "method": "POST",
+          "status": 400,
+          "ms": 38
+        },
+        {
+          "name": "Reject unexpected field",
+          "method": "POST",
+          "status": 400,
+          "ms": 38
+        },
+        {
+          "name": "Create campground as administrator",
+          "method": "POST",
+          "status": 201,
+          "ms": 77
+        },
+        {
+          "name": "Ordinary user sees created campground",
+          "method": "GET",
+          "status": 200,
+          "ms": 73
+        },
+        {
+          "name": "Read created campground detail",
+          "method": "GET",
+          "status": 200,
+          "ms": 71
+        },
+        {
+          "name": "Select seeded campgrounds",
+          "method": "GET",
+          "status": 200,
+          "ms": 72
+        },
+        {
+          "name": "Create personal booking for A",
+          "method": "POST",
+          "status": 201,
+          "ms": 162
+        },
+        {
+          "name": "Create personal booking for B",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create personal booking for ADMIN",
+          "method": "POST",
+          "status": 201,
+          "ms": 144
+        },
+        {
+          "name": "Create timing booking 01",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 02",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 03",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 04",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 05",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 06",
+          "method": "POST",
+          "status": 201,
+          "ms": 147
+        },
+        {
+          "name": "Create timing booking 07",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 08",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 09",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 10",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 11",
+          "method": "POST",
+          "status": 201,
+          "ms": 153
+        },
+        {
+          "name": "Create timing booking 12",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 13",
+          "method": "POST",
+          "status": 201,
+          "ms": 144
+        },
+        {
+          "name": "Create timing booking 14",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 15",
+          "method": "POST",
+          "status": 201,
+          "ms": 153
+        },
+        {
+          "name": "Create timing booking 16",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 17",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Administrator lists all run bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 01",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "Clean timing booking 02",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 03",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 115
+        },
+        {
+          "name": "Clean timing booking 04",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 05",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 06",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 07",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "Clean timing booking 08",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "Clean timing booking 09",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 116
+        },
+        {
+          "name": "Clean timing booking 10",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 11",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 115
+        },
+        {
+          "name": "Clean timing booking 12",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 13",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 14",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 15",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 16",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 115
+        },
+        {
+          "name": "Clean timing booking 17",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 121
+        },
+        {
+          "name": "Read deleted own timing booking",
+          "method": "GET",
+          "status": 404,
+          "ms": 75
+        },
+        {
+          "name": "List only A bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "A denied GET for B",
+          "method": "GET",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied PUT for B",
+          "method": "PUT",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied DELETE for B",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 75
+        },
+        {
+          "name": "A denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 76
+        },
+        {
+          "name": "A denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "List only B bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "B denied GET for A",
+          "method": "GET",
+          "status": 403,
+          "ms": 80
+        },
+        {
+          "name": "B denied PUT for A",
+          "method": "PUT",
+          "status": 403,
+          "ms": 72
+        },
+        {
+          "name": "B denied DELETE for A",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "B denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 71
+        },
+        {
+          "name": "B denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 73
+        },
+        {
+          "name": "B denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "Read own booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Reject owner transfer",
+          "method": "PUT",
+          "status": 400,
+          "ms": 73
+        },
+        {
+          "name": "Reject invalid merged duration",
+          "method": "PUT",
+          "status": 400,
+          "ms": 71
+        },
+        {
+          "name": "Change campground only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 186
+        },
+        {
+          "name": "Change dates only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 186
+        },
+        {
+          "name": "Read updated booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Reject zero stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 38
+        },
+        {
+          "name": "Reject negative stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 39
+        },
+        {
+          "name": "Reject four stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 37
+        },
+        {
+          "name": "Reject past stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 39
+        },
+        {
+          "name": "Restore A dates before administrator scenarios",
+          "method": "PUT",
+          "status": 200,
+          "ms": 187
+        },
+        {
+          "name": "Administrator reads A",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Administrator changes A campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 183
+        },
+        {
+          "name": "Administrator changes A dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 189
+        },
+        {
+          "name": "Read persisted A update",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Administrator reads B",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Administrator changes B campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 185
+        },
+        {
+          "name": "Administrator changes B dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 180
+        },
+        {
+          "name": "Read persisted B update",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Administrator reads ADMIN",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Administrator changes ADMIN campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 193
+        },
+        {
+          "name": "Administrator changes ADMIN dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 188
+        },
+        {
+          "name": "Read persisted ADMIN update",
+          "method": "GET",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Reject administrator owner injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 75
+        },
+        {
+          "name": "Reject administrator ownerId injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 75
+        },
+        {
+          "name": "Reject administrator role injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 75
+        },
+        {
+          "name": "Reject invalid merged administrator edit",
+          "method": "PUT",
+          "status": 400,
+          "ms": 75
+        },
+        {
+          "name": "Read booking after rejected administrator edits",
+          "method": "GET",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Reject administrator booking on behalf of A",
+          "method": "POST",
+          "status": 400,
+          "ms": 38
+        },
+        {
+          "name": "Reject administrator four-night personal booking",
+          "method": "POST",
+          "status": 400,
+          "ms": 36
+        },
+        {
+          "name": "Reject unauthenticated POST /bookings",
+          "method": "POST",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings/{{BOOKING_ID}}",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Reject unauthenticated PUT /bookings/{{BOOKING_ID}}",
+          "method": "PUT",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated DELETE /bookings/{{BOOKING_ID}}",
+          "method": "DELETE",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Administrator deletes A booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Deleted A booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 77
+        },
+        {
+          "name": "Repeated A deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 91
+        },
+        {
+          "name": "Administrator deletes B booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Deleted B booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 74
+        },
+        {
+          "name": "Repeated B deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 69
+        },
+        {
+          "name": "Administrator deletes ADMIN booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 121
+        },
+        {
+          "name": "Deleted ADMIN booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 81
+        },
+        {
+          "name": "Repeated ADMIN deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 74
+        },
+        {
+          "name": "Confirm empty A list",
+          "method": "GET",
+          "status": 200,
+          "ms": 74
+        },
+        {
+          "name": "Confirm empty B list",
+          "method": "GET",
+          "status": 200,
+          "ms": 75
+        },
+        {
+          "name": "Confirm run bookings removed from administrator list",
+          "method": "GET",
+          "status": 200,
+          "ms": 73
+        },
+        {
+          "name": "Logout",
+          "method": "GET",
+          "status": 200,
+          "ms": 40
+        },
+        {
+          "name": "Current user after logout",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Copied unexpired token remains valid",
+          "method": "GET",
+          "status": 200,
+          "ms": 38
+        },
+        {
+          "name": "Logout without credentials",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        }
+      ],
+      "assertions": 403,
+      "failures": [],
+      "exitCode": 0,
+      "after": {
+        "users": 22,
+        "campgrounds": 11,
+        "bookings": 0
+      },
+      "maxMs": 193,
+      "requestCount": 121
+    },
+    {
+      "runId": "4db6eb80-44c7-4c5e-b126-172aaa13f9b3",
+      "condition": "Repeated collection on same backend",
+      "before": {
+        "users": 22,
+        "campgrounds": 11,
+        "bookings": 0
+      },
+      "requests": [
+        {
+          "name": "Log in provisioned administrator",
+          "method": "POST",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Register user A",
+          "method": "POST",
+          "status": 201,
+          "ms": 91
+        },
+        {
+          "name": "Register user B",
+          "method": "POST",
+          "status": 201,
+          "ms": 93
+        },
+        {
+          "name": "Login",
+          "method": "POST",
+          "status": 200,
+          "ms": 95
+        },
+        {
+          "name": "Duplicate email",
+          "method": "POST",
+          "status": 409,
+          "ms": 85
+        },
+        {
+          "name": "Missing telephone",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Reject administrator registration",
+          "method": "POST",
+          "status": 400,
+          "ms": 1
+        },
+        {
+          "name": "Incorrect password",
+          "method": "POST",
+          "status": 401,
+          "ms": 97
+        },
+        {
+          "name": "Missing token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Invalid token",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject ordinary user creation",
+          "method": "POST",
+          "status": 403,
+          "ms": 37
+        },
+        {
+          "name": "Reject missing required field",
+          "method": "POST",
+          "status": 400,
+          "ms": 34
+        },
+        {
+          "name": "Reject unexpected field",
+          "method": "POST",
+          "status": 400,
+          "ms": 34
+        },
+        {
+          "name": "Create campground as administrator",
+          "method": "POST",
+          "status": 201,
+          "ms": 78
+        },
+        {
+          "name": "Ordinary user sees created campground",
+          "method": "GET",
+          "status": 200,
+          "ms": 77
+        },
+        {
+          "name": "Read created campground detail",
+          "method": "GET",
+          "status": 200,
+          "ms": 72
+        },
+        {
+          "name": "Select seeded campgrounds",
+          "method": "GET",
+          "status": 200,
+          "ms": 76
+        },
+        {
+          "name": "Create personal booking for A",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Create personal booking for B",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create personal booking for ADMIN",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 01",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 02",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 03",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Create timing booking 04",
+          "method": "POST",
+          "status": 201,
+          "ms": 149
+        },
+        {
+          "name": "Create timing booking 05",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 06",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 07",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 08",
+          "method": "POST",
+          "status": 201,
+          "ms": 147
+        },
+        {
+          "name": "Create timing booking 09",
+          "method": "POST",
+          "status": 201,
+          "ms": 152
+        },
+        {
+          "name": "Create timing booking 10",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 11",
+          "method": "POST",
+          "status": 201,
+          "ms": 151
+        },
+        {
+          "name": "Create timing booking 12",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 13",
+          "method": "POST",
+          "status": 201,
+          "ms": 150
+        },
+        {
+          "name": "Create timing booking 14",
+          "method": "POST",
+          "status": 201,
+          "ms": 147
+        },
+        {
+          "name": "Create timing booking 15",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 16",
+          "method": "POST",
+          "status": 201,
+          "ms": 148
+        },
+        {
+          "name": "Create timing booking 17",
+          "method": "POST",
+          "status": 201,
+          "ms": 155
+        },
+        {
+          "name": "Administrator lists all run bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Clean timing booking 01",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 113
+        },
+        {
+          "name": "Clean timing booking 02",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 03",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 04",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 05",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Clean timing booking 06",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 07",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Clean timing booking 08",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Clean timing booking 09",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "Clean timing booking 10",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 114
+        },
+        {
+          "name": "Clean timing booking 11",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Clean timing booking 12",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Clean timing booking 13",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Clean timing booking 14",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Clean timing booking 15",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 110
+        },
+        {
+          "name": "Clean timing booking 16",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Clean timing booking 17",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Read deleted own timing booking",
+          "method": "GET",
+          "status": 404,
+          "ms": 70
+        },
+        {
+          "name": "List only A bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "A denied GET for B",
+          "method": "GET",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "A denied PUT for B",
+          "method": "PUT",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "A denied DELETE for B",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 74
+        },
+        {
+          "name": "A denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 73
+        },
+        {
+          "name": "A denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 80
+        },
+        {
+          "name": "A denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 87
+        },
+        {
+          "name": "List only B bookings",
+          "method": "GET",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "B denied GET for A",
+          "method": "GET",
+          "status": 403,
+          "ms": 72
+        },
+        {
+          "name": "B denied PUT for A",
+          "method": "PUT",
+          "status": 403,
+          "ms": 71
+        },
+        {
+          "name": "B denied DELETE for A",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "B denied GET for ADMIN",
+          "method": "GET",
+          "status": 403,
+          "ms": 73
+        },
+        {
+          "name": "B denied PUT for ADMIN",
+          "method": "PUT",
+          "status": 403,
+          "ms": 70
+        },
+        {
+          "name": "B denied DELETE for ADMIN",
+          "method": "DELETE",
+          "status": 403,
+          "ms": 72
+        },
+        {
+          "name": "Read own booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 107
+        },
+        {
+          "name": "Reject owner transfer",
+          "method": "PUT",
+          "status": 400,
+          "ms": 72
+        },
+        {
+          "name": "Reject invalid merged duration",
+          "method": "PUT",
+          "status": 400,
+          "ms": 72
+        },
+        {
+          "name": "Change campground only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 184
+        },
+        {
+          "name": "Change dates only",
+          "method": "PUT",
+          "status": 200,
+          "ms": 179
+        },
+        {
+          "name": "Read updated booking",
+          "method": "GET",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Reject zero stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 40
+        },
+        {
+          "name": "Reject negative stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 38
+        },
+        {
+          "name": "Reject four stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 36
+        },
+        {
+          "name": "Reject past stay",
+          "method": "POST",
+          "status": 400,
+          "ms": 37
+        },
+        {
+          "name": "Restore A dates before administrator scenarios",
+          "method": "PUT",
+          "status": 200,
+          "ms": 184
+        },
+        {
+          "name": "Administrator reads A",
+          "method": "GET",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Administrator changes A campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 182
+        },
+        {
+          "name": "Administrator changes A dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 188
+        },
+        {
+          "name": "Read persisted A update",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Administrator reads B",
+          "method": "GET",
+          "status": 200,
+          "ms": 106
+        },
+        {
+          "name": "Administrator changes B campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 186
+        },
+        {
+          "name": "Administrator changes B dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 180
+        },
+        {
+          "name": "Read persisted B update",
+          "method": "GET",
+          "status": 200,
+          "ms": 111
+        },
+        {
+          "name": "Administrator reads ADMIN",
+          "method": "GET",
+          "status": 200,
+          "ms": 109
+        },
+        {
+          "name": "Administrator changes ADMIN campground",
+          "method": "PUT",
+          "status": 200,
+          "ms": 184
+        },
+        {
+          "name": "Administrator changes ADMIN dates",
+          "method": "PUT",
+          "status": 200,
+          "ms": 181
+        },
+        {
+          "name": "Read persisted ADMIN update",
+          "method": "GET",
+          "status": 200,
+          "ms": 108
+        },
+        {
+          "name": "Reject administrator owner injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 76
+        },
+        {
+          "name": "Reject administrator ownerId injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 75
+        },
+        {
+          "name": "Reject administrator role injection",
+          "method": "PUT",
+          "status": 400,
+          "ms": 73
+        },
+        {
+          "name": "Reject invalid merged administrator edit",
+          "method": "PUT",
+          "status": 400,
+          "ms": 76
+        },
+        {
+          "name": "Read booking after rejected administrator edits",
+          "method": "GET",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Reject administrator booking on behalf of A",
+          "method": "POST",
+          "status": 400,
+          "ms": 36
+        },
+        {
+          "name": "Reject administrator four-night personal booking",
+          "method": "POST",
+          "status": 400,
+          "ms": 39
+        },
+        {
+          "name": "Reject unauthenticated POST /bookings",
+          "method": "POST",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Reject unauthenticated GET /bookings/{{BOOKING_ID}}",
+          "method": "GET",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated PUT /bookings/{{BOOKING_ID}}",
+          "method": "PUT",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Reject unauthenticated DELETE /bookings/{{BOOKING_ID}}",
+          "method": "DELETE",
+          "status": 401,
+          "ms": 1
+        },
+        {
+          "name": "Administrator deletes A booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 123
+        },
+        {
+          "name": "Deleted A booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 71
+        },
+        {
+          "name": "Repeated A deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 75
+        },
+        {
+          "name": "Administrator deletes B booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 127
+        },
+        {
+          "name": "Deleted B booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 72
+        },
+        {
+          "name": "Repeated B deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 74
+        },
+        {
+          "name": "Administrator deletes ADMIN booking",
+          "method": "DELETE",
+          "status": 200,
+          "ms": 112
+        },
+        {
+          "name": "Deleted ADMIN booking is absent",
+          "method": "GET",
+          "status": 404,
+          "ms": 74
+        },
+        {
+          "name": "Repeated ADMIN deletion fails",
+          "method": "DELETE",
+          "status": 404,
+          "ms": 75
+        },
+        {
+          "name": "Confirm empty A list",
+          "method": "GET",
+          "status": 200,
+          "ms": 71
+        },
+        {
+          "name": "Confirm empty B list",
+          "method": "GET",
+          "status": 200,
+          "ms": 73
+        },
+        {
+          "name": "Confirm run bookings removed from administrator list",
+          "method": "GET",
+          "status": 200,
+          "ms": 72
+        },
+        {
+          "name": "Logout",
+          "method": "GET",
+          "status": 200,
+          "ms": 36
+        },
+        {
+          "name": "Current user after logout",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        },
+        {
+          "name": "Copied unexpired token remains valid",
+          "method": "GET",
+          "status": 200,
+          "ms": 36
+        },
+        {
+          "name": "Logout without credentials",
+          "method": "GET",
+          "status": 401,
+          "ms": 2
+        }
+      ],
+      "assertions": 403,
+      "failures": [],
+      "exitCode": 0,
+      "after": {
+        "users": 24,
+        "campgrounds": 12,
+        "bookings": 0
+      },
+      "maxMs": 188,
+      "requestCount": 121
+    }
+  ],
+  "databaseTarget": "Configured Atlas database",
+  "initialCounts": {
+    "users": 18,
+    "campgrounds": 9,
+    "bookings": 0
+  },
+  "applicationStartupMs": 732,
+  "preservation": {
+    "originalBookingsUnchanged": true,
+    "originalCampgroundsUnchanged": true,
+    "noRunBookingsRemain": true
+  },
+  "finalCounts": {
+    "users": 24,
+    "campgrounds": 12,
+    "bookings": 0
+  },
+  "passed": true,
+  "finishedAt": "2026-11-16T14:34:57.737Z"
+}

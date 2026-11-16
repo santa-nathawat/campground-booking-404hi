@@ -21,6 +21,11 @@ let journal;
 let adminToken;
 let base;
 let failed = false;
+let interrupted = false;
+for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
+  interrupted = true; failed = true; report.interrupted = signal;
+  console.error('Interruption requested; finishing the current collection before cleanup.');
+});
 const report = { startedAt: new Date().toISOString(), runtime: process.version, machine: { platform: os.platform(), release: os.release(), arch: os.arch(), cpu: os.cpus()[0]?.model, memoryGiB: Math.round(os.totalmem() / 2 ** 30) }, network: 'Local loopback HTTP; database uses the host network to configured Atlas. Connection type/location not independently verified.', runner: { name: 'Postman CLI', version: spawnSync('postman', ['--version'], {encoding:'utf8'}).stdout?.trim() || 'unavailable' }, atlas: { region: process.env.VERIFY_ATLAS_REGION || 'unverified', tier: process.env.VERIFY_ATLAS_TIER || 'unverified' }, runs: [] };
 const reportFile = path.join(root, 'docs/evidence', `demo-${Date.now()}.json`);
 fs.mkdirSync(path.dirname(reportFile), { recursive: true });
@@ -79,6 +84,7 @@ try {
       if (seed.status !== 0) throw new Error('Campground seeding failed');
     }
     for (let iteration = 0; iteration < 3; iteration++) {
+      if (interrupted) throw new Error('Verification interrupted');
       const runId = crypto.randomUUID();
       journal = { file: path.join(cache, runId + '.json'), targetDigest: digest(process.env.MONGO_URI), runId, bookingIds: [], cleaned: false };
       const run = { runId, condition: iteration === 0 ? 'First collection after application restart and administrator preflight; Atlas already connected, not Atlas cold start' : 'Repeated collection on same backend', before: await counts(), requests: [], assertions: 0, failures: [] };
@@ -134,7 +140,7 @@ try {
           cli.once('close', resolve);
         });
         run.exitCode = exitCode;
-        if (exitCode !== 0 || run.requests.length !== collection.item.length || run.failures.length) { failed = true; run.failed = true; }
+        if (exitCode !== 0 || run.requests.length !== collection.item.length || run.failures.length || run.requests.some(x => !Number.isFinite(x.ms) || x.ms > 3000)) { failed = true; run.failed = true; }
         if (run.requests.length !== collection.item.length) run.failures.push({ type: 'runner', name: 'Incomplete request metrics' });
       } finally {
         fs.rmSync(environmentFile, { force: true }); fs.rmSync(collectionFile, { force: true });
@@ -145,7 +151,7 @@ try {
       run.requestCount = run.requests.length;
       persist();
       console.log(JSON.stringify({ run: iteration + 1, requests: run.requestCount, assertions: run.assertions, failures: run.failures.length, maxMs: run.maxMs }));
-      if (run.failed) break;
+      if (run.failed || interrupted) break;
     }
   }
   const after = await snapshot('bookings');

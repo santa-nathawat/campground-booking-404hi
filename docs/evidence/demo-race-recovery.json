@@ -1,0 +1,41 @@
+{
+  "startedAt": "2026-11-16T14:37:51.259Z",
+  "runtime": "v26.12.1",
+  "machine": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M5",
+    "memoryGiB": 16
+  },
+  "network": "Local loopback HTTP; database uses the host network to configured Atlas. Connection type/location not independently verified.",
+  "runner": {
+    "name": "Postman CLI",
+    "version": "1.76.0"
+  },
+  "atlas": {
+    "region": "unverified",
+    "tier": "unverified"
+  },
+  "runs": [],
+  "databaseTarget": "Configured Atlas database",
+  "initialCounts": {
+    "users": 26,
+    "campgrounds": 13,
+    "bookings": 1
+  },
+  "applicationStartupMs": 735,
+  "recovery": "Run-owned IDs cleaned",
+  "preservation": {
+    "originalBookingsUnchanged": true,
+    "originalCampgroundsUnchanged": true,
+    "noRunBookingsRemain": true
+  },
+  "finalCounts": {
+    "users": 26,
+    "campgrounds": 13,
+    "bookings": 0
+  },
+  "passed": true,
+  "finishedAt": "2026-11-16T14:37:53.774Z"
+}
