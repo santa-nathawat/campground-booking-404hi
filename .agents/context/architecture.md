@@ -1,6 +1,6 @@
 # Architecture
 
-Status: documentation only. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The following file layout and concrete field conventions make those decisions reviewable before implementation; files shown below do not exist yet.
+Status: Ticket 01 authentication and shared server foundation are implemented; the remaining modules are planned. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/shared files and planned campground, booking, and setup-script files.
 
 ## Backend organization
 
@@ -74,4 +74,4 @@ Expired bookings remain available for viewing/deletion. If only the campground c
 
 The team provisions the Atlas cluster/database. Application setup must document required environment-variable names using placeholders. Credentials and connection strings stay local. The future campground seed command inserts missing fixture records using stable seed identities and preserves existing records and bookings; it is not a database-reset command. Administrator provisioning is separate and takes credentials from explicit local input/configuration rather than source literals.
 
-The exact command names and configuration format must be documented once implementation exists. No setup, Atlas connection, seed, or application startup is claimed to have been executed.
+Authentication setup/run commands are documented in the root README. Local authentication tests and a built-app Postman run have passed; see [evidence](auth-implementation.md). Atlas connection, campground seed, and administrator setup remain unverified/unimplemented.

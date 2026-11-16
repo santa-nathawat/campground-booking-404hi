@@ -16,7 +16,7 @@ Write the backend application in TypeScript. This replaces the earlier recommend
 
 ## Consequences
 
-Application contracts can be checked statically, but external HTTP input still requires runtime validation. The project needs a TypeScript configuration and a documented way to run and build the application. The baseline comparison must explain the language migration as well as behavioral changes. Compiler settings and tool versions remain to be selected.
+Application contracts can be checked statically, but external HTTP input still requires runtime validation. The project needs a TypeScript configuration and a documented way to run and build the application. The baseline comparison must explain the language migration as well as behavioral changes. Ticket 01 selects strict NodeNext TypeScript and locks tool versions in `backend/package-lock.json`.
 
 ---
 

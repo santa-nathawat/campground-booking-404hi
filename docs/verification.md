@@ -1,6 +1,8 @@
 # Verification
 
-**Status:** planned checks. No application tests run yet.
+**Status:** Ticket 01 passes 50 automated tests and a local Postman run (9 requests, 26 assertions). Atlas and full-project checks remain pending.
+
+Run `npm run typecheck`, `npm run build`, and `npm test` from `backend/`. See the [Postman instructions](../postman/README.md) for HTTP requests.
 
 ## Must pass
 
@@ -37,4 +39,4 @@ Report individual failures. Do not claim results for untested load.
 5. Postman collection and timing evidence.
 6. Baseline comparison, diagrams, contributors, presentation, live demo.
 
-Test runner, dependency versions, commands, and deployment target remain to be selected.
+Authentication uses Vitest/Supertest with isolated MongoDB; versions are locked in `backend/package-lock.json`. Deployment remains undecided. No Atlas timing claim is made.

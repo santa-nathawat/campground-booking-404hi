@@ -15,4 +15,4 @@ Do not add server-side token revocation.
 
 Postman sends a Bearer token. Middleware verifies it; authorization still checks roles and ownership.
 A copied token remains valid until expiry. Store the signing secret in environment configuration.
-Token lifetime and cookie settings remain to be selected.
+Ticket 01 uses one-hour HS256 tokens through Bearer headers only; no cookies are issued.

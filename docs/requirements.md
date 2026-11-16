@@ -1,6 +1,6 @@
 # Requirements
 
-**Status:** agreed business rules. No backend built yet.
+**Status:** agreed business rules. Ticket 01 authentication is implemented; remaining features are pending.
 
 ## Users and bookings
 

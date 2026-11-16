@@ -1,6 +1,6 @@
 # API contract
 
-Status: proposed concrete conventions for final design review. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. No endpoint is implemented yet.
+Status: Ticket 01 adopts the authentication contract; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, and current-user endpoints are implemented; see [implementation conventions](auth-implementation.md).
 
 ## Conventions
 
@@ -56,7 +56,7 @@ Create booking:
 
 These dates are examples, not hardcoded test fixtures. Repeatable tests generate dates relative to the Thailand calendar. Updates may contain `campgroundId`, `checkIn`, and/or `checkOut`; reject an empty update, ownership/role changes, and unexpected fields. Creation never takes an owner ID from the client.
 
-Proposed validation defaults: trim names/contact fields, normalize email by trimming and lowercasing, enforce a unique normalized email, validate email shape, require a password of at least 8 characters, and retain salted bcrypt hashing. Do not trim or otherwise silently alter passwords. Treat these as application validation conventions, not additional claims about the professor's wording.
+Implemented authentication validation: trim names/contact fields, normalize email by trimming and lowercasing, enforce a unique normalized email, validate email shape, require a password of at least 8 characters and at most 72 UTF-8 bytes, reject unknown fields (including role), and use salted bcrypt at cost 10. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Tokens are one-hour HS256 JWTs with account ID in `sub`. Do not trim or otherwise silently alter passwords. Treat these as application validation conventions, not additional claims about the professor's wording.
 
 ## HTTP errors
 
@@ -73,4 +73,4 @@ Authentication/role middleware runs before protected resource operations. For bo
 
 ## Logout limits
 
-Propose retaining the lecture's GET logout path and token response style for easy comparison. The Postman logout request clears its saved TOKEN after a successful response; the server clears an authentication cookie if one was issued. A subsequent request without credentials returns 401. A separately copied unexpired JWT may still authenticate, as explicitly accepted in ADR-0007. Do not describe client token deletion as server-side revocation. Cookie issuance/acceptance settings must be documented if implemented; the core Postman contract uses Bearer JWTs.
+Propose retaining the lecture's GET logout path and token response style for easy comparison. The Postman logout request clears its saved TOKEN after a successful response; the server clears an authentication cookie if one was issued. A subsequent request without credentials returns 401. A separately copied unexpired JWT may still authenticate, as explicitly accepted in ADR-0007. Do not describe client token deletion as server-side revocation. Ticket 01 issues and accepts no cookies; authentication uses Bearer JWTs. Logout remains ticket 09.
