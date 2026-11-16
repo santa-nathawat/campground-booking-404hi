@@ -1,0 +1,2262 @@
+{
+  "info": {
+    "name": "Campground Booking — Ticket 08 Administrator Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order after seeding and provisioning an administrator. Supply ADMIN_EMAIL and secret ADMIN_PASSWORD locally. Creates two ordinary accounts and three bookings; deletes only this run’s bookings. All generated values are runtime-only."
+  },
+  "variable": [
+    {
+      "key": "A_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "B_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "A_ID",
+      "value": ""
+    },
+    {
+      "key": "B_ID",
+      "value": ""
+    },
+    {
+      "key": "RUN_PASSWORD",
+      "value": ""
+    },
+    {
+      "key": "A_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "B_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "CAMPGROUND_ID",
+      "value": ""
+    },
+    {
+      "key": "SECOND_CAMPGROUND_ID",
+      "value": ""
+    },
+    {
+      "key": "BOOKING_ID",
+      "value": ""
+    },
+    {
+      "key": "B_BOOKING_ID",
+      "value": ""
+    },
+    {
+      "key": "CHECK_IN",
+      "value": ""
+    },
+    {
+      "key": "CHECK_OUT",
+      "value": ""
+    },
+    {
+      "key": "FOUR_NIGHTS",
+      "value": ""
+    },
+    {
+      "key": "ADMIN_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "ADMIN_ID",
+      "value": ""
+    },
+    {
+      "key": "ADMIN_BOOKING_ID",
+      "value": ""
+    },
+    {
+      "key": "UPDATED_IN",
+      "value": ""
+    },
+    {
+      "key": "UPDATED_OUT",
+      "value": ""
+    },
+    {
+      "key": "INVALID_OUT",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register user A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Booking user A\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{A_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "['ADMIN_TOKEN','ADMIN_ID','ADMIN_BOOKING_ID'].forEach(k => pm.collectionVariables.set(k, ''));",
+              "['A_TOKEN','B_TOKEN','A_ID','B_ID','BOOKING_ID','B_BOOKING_ID','CAMPGROUND_ID','SECOND_CAMPGROUND_ID'].forEach(k => pm.collectionVariables.set(k, ''));",
+              "const guid = pm.variables.replaceIn('{{$guid}}');",
+              "pm.collectionVariables.set('RUN_PASSWORD', guid);",
+              "pm.collectionVariables.set('A_EMAIL', 'booking-a-' + guid + '@example.test');",
+              "pm.collectionVariables.set('B_EMAIL', 'booking-b-' + guid + '@example.test');",
+              "const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());",
+              "const get = name => parts.find(p => p.type === name).value;",
+              "const start = new Date(get('year') + '-' + get('month') + '-' + get('day') + 'T00:00:00Z');",
+              "const day = n => new Date(start.getTime() + n * 86400000).toISOString().slice(0, 10);",
+              "pm.collectionVariables.set('CHECK_IN', day(1));",
+              "pm.collectionVariables.set('CHECK_OUT', day(4));",
+              "pm.collectionVariables.set('FOUR_NIGHTS', day(5));",
+              "pm.collectionVariables.set('UPDATED_IN', day(2));",
+              "pm.collectionVariables.set('UPDATED_OUT', day(3));",
+              "pm.collectionVariables.set('INVALID_OUT', day(6));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.collectionVariables.set('A_TOKEN', body.token);",
+              "pm.collectionVariables.set('A_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register user B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Booking user B\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{B_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.collectionVariables.set('B_TOKEN', body.token);",
+              "pm.collectionVariables.set('B_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Log in provisioned administrator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{ADMIN_EMAIL}}\",\n  \"password\": \"{{ADMIN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Current administrator role', () => pm.expect(body.data.role).to.eql('admin'));",
+              "pm.collectionVariables.set('ADMIN_TOKEN', body.token);",
+              "pm.collectionVariables.set('ADMIN_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Select seeded campgrounds",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('At least two destinations', () => pm.expect(body.data.length).to.be.at.least(2));",
+              "pm.collectionVariables.set('CAMPGROUND_ID', body.data[0].id);",
+              "pm.collectionVariables.set('SECOND_CAMPGROUND_ID', body.data[1].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create personal booking for A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Authenticated owner', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.collectionVariables.set('BOOKING_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create personal booking for B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Authenticated owner', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('B_ID')));",
+              "pm.collectionVariables.set('B_BOOKING_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create personal booking for ADMIN",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Authenticated owner', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('ADMIN_ID')));",
+              "pm.collectionVariables.set('ADMIN_BOOKING_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator lists all run bookings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Contains all run bookings', () => ['BOOKING_ID','B_BOOKING_ID','ADMIN_BOOKING_ID'].forEach(k => pm.expect(body.data.map(b => b.id)).to.include(pm.collectionVariables.get(k))));",
+              "pm.test('Accurate count', () => pm.expect(body.count).to.eql(body.data.length));",
+              "pm.test('ID ordering', () => pm.expect(body.data.map(b => b.id)).to.eql(body.data.map(b => b.id).slice().sort()));",
+              "pm.test('Public fields only', () => body.data.forEach(b => { pm.expect(Object.keys(b).sort()).to.eql(['id','ownerId','campground','checkIn','checkOut'].sort()); pm.expect(Object.keys(b.campground).sort()).to.eql(['id','name','address','telephone'].sort()); }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List only A bookings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Only own booking', () => pm.expect(body.data.map(b => b.id)).to.eql([pm.collectionVariables.get('BOOKING_ID')]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied GET for B",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied PUT for B",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied DELETE for B",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied GET for ADMIN",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied PUT for ADMIN",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A denied DELETE for ADMIN",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List only B bookings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Only own booking', () => pm.expect(body.data.map(b => b.id)).to.eql([pm.collectionVariables.get('B_BOOKING_ID')]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied GET for A",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied PUT for A",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied DELETE for A",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied GET for ADMIN",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied PUT for ADMIN",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B denied DELETE for ADMIN",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Access denied', () => pm.expect(body.message).to.eql('Booking access denied'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator reads A",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes A campground",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{SECOND_CAMPGROUND_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.test('Destination changed', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes A dates",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checkIn\": \"{{UPDATED_IN}}\",\n  \"checkOut\": \"{{UPDATED_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.test('Dates', () => pm.expect([body.data.checkIn, body.data.checkOut]).to.eql([pm.collectionVariables.get('UPDATED_IN'), pm.collectionVariables.get('UPDATED_OUT')]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read persisted A update",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.test('Persisted destination', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator reads B",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('B_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes B campground",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{SECOND_CAMPGROUND_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('B_ID')));",
+              "pm.test('Destination changed', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes B dates",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checkIn\": \"{{UPDATED_IN}}\",\n  \"checkOut\": \"{{UPDATED_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('B_ID')));",
+              "pm.test('Dates', () => pm.expect([body.data.checkIn, body.data.checkOut]).to.eql([pm.collectionVariables.get('UPDATED_IN'), pm.collectionVariables.get('UPDATED_OUT')]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read persisted B update",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('B_ID')));",
+              "pm.test('Persisted destination', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator reads ADMIN",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('ADMIN_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes ADMIN campground",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{SECOND_CAMPGROUND_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('ADMIN_ID')));",
+              "pm.test('Destination changed', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator changes ADMIN dates",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checkIn\": \"{{UPDATED_IN}}\",\n  \"checkOut\": \"{{UPDATED_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('ADMIN_ID')));",
+              "pm.test('Dates', () => pm.expect([body.data.checkIn, body.data.checkOut]).to.eql([pm.collectionVariables.get('UPDATED_IN'), pm.collectionVariables.get('UPDATED_OUT')]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read persisted ADMIN update",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner preserved', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('ADMIN_ID')));",
+              "pm.test('Persisted destination', () => pm.expect(body.data.campground.id).to.eql(pm.collectionVariables.get('SECOND_CAMPGROUND_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator owner injection",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"owner\": \"{{ADMIN_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Invalid fields', () => pm.expect(body.message).to.eql('Invalid booking fields'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator ownerId injection",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ownerId\": \"{{ADMIN_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Invalid fields', () => pm.expect(body.message).to.eql('Invalid booking fields'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator role injection",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"role\": \"{{ADMIN_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Invalid fields', () => pm.expect(body.message).to.eql('Invalid booking fields'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject invalid merged administrator edit",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"checkOut\": \"{{INVALID_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Invalid dates', () => pm.expect(body.message).to.eql('Invalid booking dates'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read booking after rejected administrator edits",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Owner unchanged', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.test('Dates unchanged', () => pm.expect(body.data.checkOut).to.eql(pm.collectionVariables.get('UPDATED_OUT')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator booking on behalf of A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\",\n  \"ownerId\": \"{{A_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator four-night personal booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{FOUR_NIGHTS}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated POST /bookings",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated GET /bookings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated GET /bookings/{{BOOKING_ID}}",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated PUT /bookings/{{BOOKING_ID}}",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated DELETE /bookings/{{BOOKING_ID}}",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator deletes A booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty data', () => pm.expect(body.data).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deleted A booking is absent",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Repeated A deletion fails",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator deletes B booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty data', () => pm.expect(body.data).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deleted B booking is absent",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Repeated B deletion fails",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administrator deletes ADMIN booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty data', () => pm.expect(body.data).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deleted ADMIN booking is absent",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Repeated ADMIN deletion fails",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{ADMIN_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm empty A list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty list', () => pm.expect(body.data).to.eql([]));",
+              "pm.test('Zero count', () => pm.expect(body.count).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm empty B list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty list', () => pm.expect(body.data).to.eql([]));",
+              "pm.test('Zero count', () => pm.expect(body.count).to.eql(0));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm run bookings removed from administrator list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Run bookings removed', () => ['BOOKING_ID','B_BOOKING_ID','ADMIN_BOOKING_ID'].forEach(k => pm.expect(body.data.map(b => b.id)).not.to.include(pm.collectionVariables.get(k))));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

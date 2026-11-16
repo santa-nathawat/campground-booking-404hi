@@ -29,3 +29,5 @@ A proposal is not an accepted user decision or an implemented feature.
 
 When behavior changes, update affected human docs and detailed agent notes together. Resolve conflicts using explicit user decisions and source requirements.
 Keep detailed evidence here; keep human docs concise. Do not require the user to read this folder or repeat the design interview.
+
+- Administrator booking access and local verification: [ticket 08 evidence](admin-bookings-implementation.md).

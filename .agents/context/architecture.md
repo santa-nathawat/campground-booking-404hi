@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Tickets 01–07 authentication, campgrounds, shared infrastructure, and owned booking CRUD are implemented. Administrator access to others’ bookings remains ticket 08. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/campground/shared files, a campground seed script, an administrator setup script, and implemented booking files.
+Status: Tickets 01–08 authentication, campgrounds, shared infrastructure, and owner/administrator booking CRUD are implemented. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/campground/shared files, a campground seed script, an administrator setup script, and implemented booking files.
 
 ## Backend organization
 
@@ -64,7 +64,7 @@ There is no pitch, capacity, payment, or cancellation-status entity. Delete mean
 
 ## Authorization boundary
 
-The authenticated user determines ownership on creation. Neither a user nor an administrator supplies another owner when making a booking. List queries scope all callers, including administrators, to their own records. Single-record reads and writes verify ownership. Administrator access to others remains ticket 08. Updating a booking cannot change its owner.
+The authenticated user determines ownership on creation. Neither a user nor an administrator supplies another owner when making a booking. List queries scope ordinary users to their own records and return all records for current stored administrators. Single-record reads and writes enforce owner-or-administrator access. Writes match the authorized record’s stored owner, including administrator writes. Updating a booking cannot change its owner.
 
 JWT verification establishes the claimed identity; load the current user to ensure the account still exists and use its current role for authorization. Never trust an incoming registration role or a body-supplied booking owner. No fallback administrator or fallback signing secret is carried over from Assignment 7.
 

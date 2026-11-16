@@ -1,6 +1,6 @@
 # API contract
 
-Status: Tickets 01–07 adopt authentication, campgrounds, and owned booking CRUD. See [booking conventions and evidence](bookings-implementation.md). Administrator access to others (08) and logout (09) remain proposed. Business behavior is agreed in [requirements](requirements.md); implemented contracts follow the adopted conventions below; remaining logout/administrator-booking details are recommendations. Registration, login, current-user, campground list/detail/create, and owned booking CRUD endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
+Status: Tickets 01–08 adopt authentication, campgrounds, and owner/administrator booking CRUD. See [booking conventions and evidence](bookings-implementation.md). Administrator access to others (08) is implemented; logout (09) remains proposed. See [ticket 08 evidence](admin-bookings-implementation.md). Business behavior is agreed in [requirements](requirements.md); implemented contracts follow the adopted conventions below; remaining logout details are recommendations. Registration, login, current-user, campground list/detail/create, and owner/administrator booking CRUD endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
 
 ## Conventions
 
@@ -27,7 +27,7 @@ All paths below are relative to `/api/v1`.
 | PUT | `/bookings/:id` | Owner or administrator | 200 + updated booking | FR-05, FR-08 |
 | DELETE | `/bookings/:id` | Owner or administrator | 200 + empty object in `data` | FR-06, FR-09 |
 
-Use partial field updates for the implemented booking PUT, matching the baseline's update style. Validate the complete merged stay on every update, including campground-only edits. Booking rows describing access to others by administrators remain ticket 08; all current booking access is own-only. No nested campground booking list is planned, avoiding a second path that could leak other users' bookings.
+Use partial field updates for the implemented booking PUT, matching the baseline's update style. Validate the complete merged stay on every update, including campground-only edits. Administrators can access other owners’ bookings as implemented in ticket 08; ordinary-user access remains own-only. No nested campground booking list is planned, avoiding a second path that could leak other users' bookings.
 
 ## Request representations
 
@@ -73,7 +73,7 @@ Return only `{ id, name, address, telephone }`, with string telephone values and
 | 409 | Registration conflicts with an existing normalized email |
 | 500 | Unexpected internal failure; do not return credentials, database internals, or stack traces |
 
-Authentication/role middleware runs before protected resource operations. For booking ownership, load the booking and then enforce owner-only access before returning data or making any change. Administrator access to others remains ticket 08.
+Authentication/role middleware runs before protected resource operations. For booking ownership, load the booking and then enforce owner-or-administrator access before returning data or making any change, using the current stored account role.
 
 ## Logout limits
 

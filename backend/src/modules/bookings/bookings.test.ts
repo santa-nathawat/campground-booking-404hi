@@ -15,6 +15,8 @@ const destination = { name: 'Booking Campground', address: '1 Test Road', teleph
 let database: MongoMemoryServer;
 let ownerId: string;
 let otherId: string;
+let adminId: string;
+let adminToken: string;
 let token: string;
 let otherToken: string;
 let campgroundId: string;
@@ -24,25 +26,28 @@ const create = (body: object, credential = token) => request(app).post('/api/v1/
 beforeAll(async () => {
   database = await MongoMemoryServer.create();
   await mongoose.connect(database.getUri(), { dbName: 'bookings_test' });
-  for (const name of ['Owner', 'Other']) {
+  for (const name of ['Owner', 'Other', 'Administrator']) {
     const response = await request(app).post('/api/v1/auth/register').send({
       name, telephone: '0811111111', email: `${name.toLowerCase()}@example.test`, password: 'test-password',
     });
     expect(response.status).toBe(201);
     if (name === 'Owner') ownerId = response.body.data.id;
-    else otherId = response.body.data.id;
+    else if (name === 'Other') otherId = response.body.data.id;
+    else adminId = response.body.data.id;
   }
 }, 120_000);
 beforeEach(async () => {
   await Booking.deleteMany({});
   await Campground.deleteMany({});
-  await User.findByIdAndUpdate(ownerId, { role: 'user' });
+  await User.updateMany({ _id: { $in: [ownerId, otherId] } }, { role: 'user' });
+  await User.findByIdAndUpdate(adminId, { role: 'admin' });
   campgroundId = (await Campground.create(destination)).id;
   // Fake Date only so MongoDB's network timers remain real.
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date('2030-12-30T17:00:00.000Z'));
   token = jwt.sign({}, secret, { subject: ownerId, expiresIn: '1h' });
   otherToken = jwt.sign({}, secret, { subject: otherId, expiresIn: '1h' });
+  adminToken = jwt.sign({}, secret, { subject: adminId, expiresIn: '1h' });
 });
 afterEach(() => vi.useRealTimers());
 afterAll(async () => { await mongoose.disconnect(); await database?.stop(); });
@@ -169,13 +174,6 @@ describe('booking reads', () => {
     expect((await read()).body.data[0].checkIn).toBe('2020-01-01');
     expect((await read(`/${old.id}`)).status).toBe(200);
   });
-  it('restricts administrators to their own records until ticket 08', async () => {
-    const own = await create({ campgroundId, ...stay });
-    const other = await create({ campgroundId, ...stay }, otherToken);
-    await User.findByIdAndUpdate(ownerId, { role: 'admin' });
-    expect((await read()).body.data).toEqual([own.body.data]);
-    expect((await read(`/${other.body.data.id}`)).status).toBe(403);
-  });
   it('uses documented ID and missing-resource errors', async () => {
     for (const id of ['bad', '123456789012', 'g'.repeat(24), 'a'.repeat(23), 'a'.repeat(25)]) {
       const response = await read(`/${id}`);
@@ -253,18 +251,14 @@ describe('booking updates', () => {
     expect((await request(app).put(`/api/v1/bookings/${id}`).auth(token, { type: 'bearer' })).status).toBe(400);
     expect(await Booking.findById(id).lean()).toEqual(before);
   });
-  it('checks ownership before update fields, also for administrators', async () => {
+  it('checks ordinary-user ownership before update fields', async () => {
     const id = await own();
     const before = await Booking.findById(id).lean();
-    for (const role of ['user', 'admin']) {
-      await User.findByIdAndUpdate(otherId, { role });
-      for (const body of [{}, { checkOut: '2031-01-02' }]) {
-        const response = await update(id, body, otherToken);
-        expect(response.status).toBe(403);
-        expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
-      }
+    for (const body of [{}, { checkOut: '2031-01-02' }]) {
+      const response = await update(id, body, otherToken);
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
     }
-    await User.findByIdAndUpdate(otherId, { role: 'user' });
     expect(await Booking.findById(id).lean()).toEqual(before);
     await User.findByIdAndUpdate(ownerId, { role: 'admin' });
     expect((await update(id, { checkOut: '2031-01-02' })).status).toBe(200);
@@ -324,17 +318,13 @@ describe('booking deletion', () => {
     expect((await request(app).get('/api/v1/bookings').auth(token, { type: 'bearer' })).body).toEqual({ success: true, count: 0, data: [] });
     expect((await remove(booking.id)).status).toBe(404);
   });
-  it('denies cross-user deletion, including administrators, and preserves the record', async () => {
+  it('denies ordinary-user cross-user deletion and preserves the record', async () => {
     const booking = await Booking.create({ owner: ownerId, campground: campgroundId, ...stay });
     const before = await Booking.findById(booking.id).lean();
-    for (const role of ['user', 'admin']) {
-      await User.findByIdAndUpdate(otherId, { role });
-      const response = await remove(booking.id, otherToken);
-      expect(response.status).toBe(403);
-      expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
-      expect(await Booking.findById(booking.id).lean()).toEqual(before);
-    }
-    await User.findByIdAndUpdate(otherId, { role: 'user' });
+    const response = await remove(booking.id, otherToken);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
+    expect(await Booking.findById(booking.id).lean()).toEqual(before);
     await User.findByIdAndUpdate(ownerId, { role: 'admin' });
     expect((await remove(booking.id)).status).toBe(200);
   });
@@ -359,5 +349,141 @@ describe('booking deletion', () => {
     const response = await remove(new mongoose.Types.ObjectId().toString());
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ success: false, message: 'Booking not found' });
+  });
+});
+
+describe('administrator booking management', () => {
+  const read = (path = '', credential = adminToken) => request(app).get(`/api/v1/bookings${path}`).auth(credential, { type: 'bearer' });
+  const update = (id: string, body: object, credential = adminToken) => request(app).put(`/api/v1/bookings/${id}`).auth(credential, { type: 'bearer' }).send(body);
+  const remove = (id: string, credential = adminToken) => request(app).delete(`/api/v1/bookings/${id}`).auth(credential, { type: 'bearer' });
+
+  it('lists all owners in ID order using only public fields', async () => {
+    expect((await read()).body).toEqual({ success: true, count: 0, data: [] });
+    const records = [];
+    for (const credential of [token, otherToken, adminToken]) {
+      const response = await create({ campgroundId, ...stay }, credential);
+      expect(response.status).toBe(201);
+      records.push(response.body.data);
+    }
+    records.sort((a, b) => a.id.localeCompare(b.id));
+    await Booking.collection.updateMany({}, { $set: { secret: 'private', passwordHash: 'private' } });
+    expect((await read()).body).toEqual({ success: true, count: 3, data: records });
+    for (const [id, credential] of [[ownerId, token], [otherId, otherToken]]) {
+      expect((await read('', credential)).body).toEqual({ success: true, count: 1, data: records.filter(b => b.ownerId === id) });
+    }
+  });
+
+  it.each([0, 1, 2])('enforces detail/update/delete access for owner index %i across all actors', async index => {
+    const actors = [{ id: ownerId, token }, { id: otherId, token: otherToken }, { id: adminId, token: adminToken }];
+    const owner = actors[index];
+    const created = await create({ campgroundId, ...stay }, owner.token);
+    const id = created.body.data.id;
+    const unrelated = await create({ campgroundId, ...stay }, token);
+    const second = await Campground.create({ ...destination, name: 'Administrator destination' });
+    for (const actor of actors.filter(actor => actor.id !== owner.id && actor.id !== adminId)) {
+      const before = await Booking.findById(id).lean();
+      expect((await read(`/${id}`, actor.token)).status).toBe(403);
+      expect((await update(id, {}, actor.token)).status).toBe(403);
+      expect((await remove(id, actor.token)).status).toBe(403);
+      expect(await Booking.findById(id).lean()).toEqual(before);
+    }
+    for (const actor of actors.filter(actor => actor.id === owner.id || actor.id === adminId)) {
+      expect((await read(`/${id}`, actor.token)).status).toBe(200);
+      expect((await update(id, { campgroundId: second.id }, actor.token)).status).toBe(200);
+      const edited = await update(id, { campgroundId: second.id, checkIn: '2031-01-01', checkOut: '2031-01-03' }, actor.token);
+      expect(edited.status).toBe(200);
+      expect(edited.body.data).toEqual({ id, ownerId: owner.id, campground: { id: second.id, ...destination, name: 'Administrator destination' }, checkIn: '2031-01-01', checkOut: '2031-01-03' });
+      expect(String((await Booking.findById(id))!.owner)).toBe(owner.id);
+      const disposable = await create({ campgroundId, ...stay }, owner.token);
+      const deleted = await remove(disposable.body.data.id, actor.token);
+      expect(deleted.status).toBe(200);
+      expect(deleted.body).toEqual({ success: true, data: {} });
+      expect(await Booking.findById(disposable.body.data.id)).toBeNull();
+    }
+    expect((await remove(id)).status).toBe(200);
+    expect((await remove(id)).status).toBe(404);
+    expect((await read(`/${id}`)).status).toBe(404);
+    expect(await Booking.findById(unrelated.body.data.id)).not.toBeNull();
+  });
+
+  it.each([0, 1, 2])('applies strict fields and merged stay validation to owner index %i', async index => {
+    const owner = [ownerId, otherId, adminId][index];
+    const booking = await Booking.create({ owner, campground: campgroundId, ...stay });
+    const before = await Booking.findById(booking.id).lean();
+    for (const body of [
+      {}, { owner: adminId }, { ownerId: otherId }, { user: otherId }, { role: 'admin' }, { unexpected: true },
+      { checkOut: '2031-01-04' }, { checkOut: stay.checkIn }, { checkIn: '2031-01-04' },
+      { checkIn: '2030-12-30' }, { checkOut: '2031-02-29' }, { campgroundId: 'invalid' },
+    ]) {
+      expect((await update(booking.id, body)).status).toBe(400);
+      expect(await Booking.findById(booking.id).lean()).toEqual(before);
+    }
+    expect((await update(booking.id, { campgroundId: new mongoose.Types.ObjectId().toString() })).status).toBe(404);
+    expect(await Booking.findById(booking.id).lean()).toEqual(before);
+    expect((await update(booking.id, { checkIn: '2031-01-01' })).status).toBe(200);
+    expect((await update(booking.id, { checkOut: '2031-01-02' })).status).toBe(200);
+  });
+
+  it('uses current stored roles with the same token and ignores client role claims', async () => {
+    const booking = await create({ campgroundId, ...stay }, otherToken);
+    const id = booking.body.data.id;
+    const forgedRoleToken = jwt.sign({ role: 'admin' }, secret, { subject: ownerId, expiresIn: '1h' });
+    expect((await read(`/${id}`, forgedRoleToken)).status).toBe(403);
+    await User.findByIdAndUpdate(ownerId, { role: 'admin' });
+    expect((await read(`/${id}`, token)).status).toBe(200);
+    expect((await update(id, { checkIn: '2031-01-01' }, token)).status).toBe(200);
+    await User.findByIdAndUpdate(ownerId, { role: 'user' });
+    expect((await read('', token)).body.data).toEqual([]);
+    expect((await read(`/${id}`, token)).status).toBe(403);
+    expect((await update(id, stay, token)).status).toBe(403);
+    expect((await remove(id, token)).status).toBe(403);
+    expect(await Booking.findById(id)).not.toBeNull();
+  });
+
+  it('reads/deletes historical stays but requires valid rescheduling for every edit', async () => {
+    const old = await Booking.create({ owner: otherId, campground: campgroundId, checkIn: '2020-01-01', checkOut: '2020-01-02' });
+    const before = await Booking.findById(old.id).lean();
+    expect((await read()).body.data[0].id).toBe(old.id);
+    expect((await read(`/${old.id}`)).status).toBe(200);
+    expect((await update(old.id, { campgroundId })).status).toBe(400);
+    expect(await Booking.findById(old.id).lean()).toEqual(before);
+    expect((await update(old.id, stay)).body.data).toMatchObject({ ownerId: otherId, ...stay });
+    await Booking.findByIdAndUpdate(old.id, { checkIn: '2020-01-01', checkOut: '2020-01-02' });
+    expect((await remove(old.id)).status).toBe(200);
+    expect(await Booking.findById(old.id)).toBeNull();
+  });
+
+  it.each([1, 2, 3])('creates only personal administrator bookings of %i nights', async nights => {
+    const body = { campgroundId, checkIn: stay.checkIn, checkOut: `2031-01-0${nights}` };
+    const response = await create(body, adminToken);
+    expect(response.status).toBe(201);
+    expect(response.body.data.ownerId).toBe(adminId);
+    for (const field of ['owner', 'ownerId', 'user', 'role']) {
+      expect((await create({ ...body, [field]: otherId }, adminToken)).status).toBe(400);
+    }
+    expect(await Booking.countDocuments()).toBe(1);
+  });
+
+  it('keeps administrator self-booking subject to all date rules', async () => {
+    for (const dates of [
+      { checkIn: '2030-12-30', checkOut: '2030-12-31' },
+      { checkIn: stay.checkIn, checkOut: stay.checkIn },
+      { checkIn: '2031-01-01', checkOut: stay.checkIn },
+      { checkIn: stay.checkIn, checkOut: '2031-01-04' },
+      { checkIn: '2031-02-29', checkOut: '2031-03-01' },
+    ]) expect((await create({ campgroundId, ...dates }, adminToken)).status).toBe(400);
+    expect(await Booking.countDocuments()).toBe(0);
+  });
+
+  it('preserves malformed/missing identifier errors for administrators', async () => {
+    for (const [id, status, message] of [
+      ['invalid', 400, 'Invalid booking identifier'],
+      [new mongoose.Types.ObjectId().toString(), 404, 'Booking not found'],
+    ] as const) {
+      for (const response of [await read(`/${id}`), await update(id, {}), await remove(id)]) {
+        expect(response.status).toBe(status);
+        expect(response.body).toEqual({ success: false, message });
+      }
+    }
   });
 });

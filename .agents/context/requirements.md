@@ -1,6 +1,6 @@
 # Requirements and acceptance checks
 
-Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Tickets 01–07 local checks passed; see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). See [administrator evidence](admin-campgrounds-implementation.md). Remaining acceptance checks are pending.
+Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Tickets 01–08 local checks passed; see [administrator booking evidence](admin-bookings-implementation.md); see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). See [administrator evidence](admin-campgrounds-implementation.md). Remaining acceptance checks are pending.
 
 ## Authority and scope
 

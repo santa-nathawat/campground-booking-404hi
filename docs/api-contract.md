@@ -1,6 +1,6 @@
 # API
 
-**Status:** registration, login, current user, campgrounds, and owned booking CRUD are implemented. Administrator access to others’ bookings (08) and logout (09) remain unimplemented.
+**Status:** registration, login, current user, campgrounds, and owner/administrator booking CRUD are implemented. Logout (09) remains unimplemented.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -16,10 +16,10 @@ Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bear
 | GET | `/campgrounds/:id` | Logged-in user | 200 |
 | POST | `/campgrounds` | Administrator | 201 |
 | POST | `/bookings` | Logged-in user; books for self | 201 |
-| GET | `/bookings` | Own bookings; administrator sees all in ticket 08 | 200 |
-| GET | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
-| PUT | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
-| DELETE | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
+| GET | `/bookings` | Own bookings; administrator sees all | 200 |
+| GET | `/bookings/:id` | Owner or administrator | 200 |
+| PUT | `/bookings/:id` | Owner or administrator | 200 |
+| DELETE | `/bookings/:id` | Owner or administrator | 200 |
 
 No pagination, filter language, or nested booking endpoints planned.
 
@@ -80,12 +80,16 @@ POST `/bookings` accepts exactly `campgroundId`, `checkIn`, and `checkOut`. Stor
 
 ## Adopted booking reads (ticket 05)
 
-GET `/bookings` returns only the caller's records ordered by ID ascending, with returned-item `count`. GET `/bookings/:id` returns one owned booking using the creation representation. Historical bookings remain readable. Malformed booking IDs return 400 (`Invalid booking identifier`), absent records 404 (`Booking not found`), and another owner's booking 403 (`Booking access denied`). Authentication precedes ID validation. Administrators are also own-only until ticket 08 implements the broader access described in the endpoint table.
+GET `/bookings` returns the caller's records, or all records for administrators, ordered by ID ascending with returned-item `count`. GET `/bookings/:id` returns one authorized booking using the creation representation. Historical bookings remain readable. Malformed booking IDs return 400 (`Invalid booking identifier`), absent records 404 (`Booking not found`), and another owner's booking for an ordinary user 403 (`Booking access denied`). Authentication precedes ID validation. Administrators use the same representation and error conventions.
 
 ## Adopted booking updates (ticket 06)
 
-PUT `/bookings/:id` accepts a nonempty subset of `campgroundId`, `checkIn`, and `checkOut`. Check ownership before validating the body; reject unknown/ownership/authority fields with 400 (`Invalid booking fields`). Validate the complete merged stay on every edit, including campground-only edits: past dates fail with 400 (`Invalid booking dates`). Owners may reschedule a historical booking to valid current/future dates. Verify the destination exists, preserve the owner, and write the validated campground/date tuple together. Rejected updates preserve the stored booking. Success returns 200 with the public booking in `data`; administrators remain own-only until ticket 08.
+PUT `/bookings/:id` accepts a nonempty subset of `campgroundId`, `checkIn`, and `checkOut`. Check owner-or-administrator access before validating the body; reject unknown/ownership/authority fields with 400 (`Invalid booking fields`). Validate the complete merged stay on every edit, including campground-only edits: past dates fail with 400 (`Invalid booking dates`). Owners and administrators may reschedule a historical booking to valid current/future dates. Verify the destination exists, preserve the owner, and write the validated campground/date tuple together. Rejected updates preserve the stored booking. Success returns 200 with the public booking in `data`.
 
 ## Adopted booking deletion (ticket 07)
 
-DELETE `/bookings/:id` permanently removes an owned booking, including a historical stay, and returns 200 with `{ "success": true, "data": {} }`. Authentication and booking-ID/ownership checks use the read conventions. Repeated deletion returns 404. Denied requests preserve the booking; there is no soft deletion or cancellation status. Administrators remain own-only until ticket 08.
+DELETE `/bookings/:id` permanently removes an authorized booking, including a historical stay, and returns 200 with `{ "success": true, "data": {} }`. Authentication and booking-ID/ownership checks use the read conventions. Repeated deletion returns 404. Denied requests preserve the booking; there is no soft deletion or cancellation status. Administrators may delete any owner’s booking.
+
+## Administrator booking access (ticket 08)
+
+The authenticated account’s current stored role determines access on every request. Administrators can list, inspect, update, and delete any booking through the existing endpoints. Update validation and immutable ownership apply equally to every owner; writes match the booking’s stored owner. POST remains self-only for administrators and rejects owner/authority fields. No owner accounts are populated or exposed.

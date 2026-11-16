@@ -47,3 +47,15 @@ postman collection run postman/bookings.postman_collection.json -e postman/local
 ```
 
 Clear generated credentials/tokens before exporting. Use a disposable database for account cleanup; there is no public reset endpoint.
+
+## Administrator bookings (ticket 08)
+
+Seed campgrounds and provision an administrator with `npm run setup:admin` in the API's designated test database. Set `ADMIN_EMAIL` and secret `ADMIN_PASSWORD` locally using the existing environment. Run `admin-bookings.postman_collection.json` in order:
+
+```sh
+postman collection run postman/admin-bookings.postman_collection.json -e postman/local.postman_environment.json --no-report-events
+```
+
+The 58 requests/174 assertions create two ordinary accounts and one booking per user/administrator. They verify all-owner administrator listing, detail, campground/date edits, immutable ownership, rejected ownership/authority fields, merged date validation, administrator self-only creation, ordinary-user isolation, unauthenticated denials, permanent deletion, and read-back. Dates use the current Bangkok calendar. Automated tests additionally cover stored-role changes with existing tokens and historical stays.
+
+Cleanup deletes only the three bookings created by this run; existing administrator bookings may remain in the final administrator list. Generated accounts remain, so use a disposable database for account cleanup. Committed runtime variables and administrator credentials are empty. Clear local credentials/tokens before exporting. Local functional checks do not establish Atlas timing compliance.

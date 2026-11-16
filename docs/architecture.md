@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** app/server setup, shared middleware, auth/campground/booking modules, seed/admin setup scripts, and owned booking CRUD are implemented. Administrator access to others’ bookings remains ticket 08.
+**Status:** app/server setup, shared middleware, auth/campground/booking modules, seed/admin setup scripts, and owner/administrator booking CRUD are implemented through ticket 08.
 
 ## Stack
 
@@ -53,7 +53,7 @@ Keep each model in its owning module. Keep tests beside the code.
 
 - Load the current user after verifying JWT. Use the current stored role.
 - Set booking owner from the authenticated user, never the request body.
-- Scope all current booking queries to the caller; ticket 08 will add administrator access to others.
+- Scope ordinary-user booking lists to the caller; allow the current stored administrator role to list and manage all bookings. Writes preserve the authorized booking’s stored owner.
 - Keep passwords, tokens, and Atlas credentials out of Git.
 - Never carry over Assignment 7's fallback administrator or signing secret.
 
