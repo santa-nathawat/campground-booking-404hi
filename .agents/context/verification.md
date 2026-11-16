@@ -1,10 +1,10 @@
 # Verification plan and implementation sequence
 
-Status: planned checks only. No application, model, module, Postman, or performance test has run for this project. The procedures below are proposed for final design review; concrete commands and tooling must follow the eventual implementation.
+Status: Ticket 01 local checks passed; see [authentication evidence](auth-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
 
 ## Meaningful test coverage
 
-Keep each module's tests beside its implementation as requested. Exercise observable behavior and persisted state rather than mirroring function bodies. Use Postman/Newman for the required API-level evidence; a TypeScript-compatible test runner for colocated tests is still to be selected.
+Keep each module's tests beside its implementation as requested. Exercise observable behavior and persisted state rather than mirroring function bodies. Use Postman/Newman for the required API-level evidence; Vitest/Supertest run colocated authentication tests against isolated MongoDB.
 
 | Area | Cases to verify |
 | --- | --- |
@@ -45,7 +45,7 @@ Record each HTTP request's response time and assert at most 3000 ms, including r
 5. Assemble and run the Postman/Newman suite, inspect confidentiality, and collect performance evidence under recorded conditions.
 6. Update the actual baseline change map, author/render the required diagrams from implemented behavior, and prepare presentation/demo evidence.
 
-This order describes future implementation; completing documentation does not mark these steps complete.
+Ticket 01 completes the server foundation and registration/login/current user. Administrator provisioning and the remaining features stay assigned to their approved tickets.
 
 ## Completion evidence
 

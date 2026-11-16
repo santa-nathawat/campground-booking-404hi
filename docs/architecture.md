@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** planned structure, not built yet.
+**Status:** app/server setup, configuration, shared authentication/error middleware, and the auth module are implemented. Campgrounds, bookings, and setup scripts remain planned.
 
 ## Stack
 

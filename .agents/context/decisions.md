@@ -37,7 +37,7 @@ Application location: `backend/src/modules/`. Each directory owns one route grou
 
 The business-rule interview is settled through Q17. Detailed [API](api-contract.md), [architecture](architecture.md), and [verification](verification.md) notes preserve implementation context. Details labeled proposed remain recommendations, not earlier user decisions. The user does not need to read these agent notes.
 
-Exact dependency versions, package scripts, test runner, token lifetime, and deployment target will be selected when implementing the relevant part. They are not invented as accepted architecture decisions here. Atlas provisioning belongs to the team; the connection is not yet configured or verified.
+Ticket 01 selects runtime/tooling, scripts, and token lifetime as recorded in [authentication conventions](auth-implementation.md). The deployment target remains undecided. These implementation conventions are distinct from the accepted architecture ADRs. Atlas provisioning belongs to the team; the connection is not yet configured or verified.
 
 ## ADR conventions
 

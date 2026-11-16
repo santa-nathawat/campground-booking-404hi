@@ -1,6 +1,6 @@
 # Campground Booking: Topic 2 implementation spec
 
-Status: local spec; not published or labeled in an issue tracker. Business rules, architecture choices, and testing boundaries are confirmed. API details identified as proposed remain recommendations. No application is implemented or verified yet.
+Status: local spec; not published or labeled in an issue tracker. Business rules, architecture choices, and testing boundaries are confirmed. API details identified as proposed remain recommendations. Ticket 01 authentication is implemented and locally verified; see [evidence](auth-implementation.md).
 
 ## Problem Statement
 
@@ -152,7 +152,7 @@ Exercise externally visible behavior and persisted results. Avoid tests that mer
 
 ### Prior art and evidence
 
-The current project has documents only. There is no implemented application or project test suite to reuse yet. Assignment 7 provides an existing Postman/Newman classroom collection and grading automation as reference material, not proof of Topic 2 compliance. Its per-hospital appointment-count assertions must not become campground booking rules. Do not import classroom automation blindly or assume baseline tests passed; none were run during kickoff/spec preparation.
+At kickoff the project contained documents only. Ticket 01 now provides a runnable authentication backend and isolated HTTP test suite. Assignment 7 provides an existing Postman/Newman classroom collection and grading automation as reference material, not proof of Topic 2 compliance. Its per-hospital appointment-count assertions must not become campground booking rules. Do not import classroom automation blindly or assume baseline tests passed; none were run during kickoff/spec preparation.
 
 Use Postman Runner or Newman for API verification and the live demo. Select a compatible TypeScript test runner during implementation. Do not introduce a public reset/delete endpoint solely to clean up a test run.
 

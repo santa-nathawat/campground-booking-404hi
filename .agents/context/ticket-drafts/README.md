@@ -1,6 +1,6 @@
 # Approved ticket breakdown
 
-Status: plan approved. No external issues published. Tickets 01–09 have concise human summaries in [docs](../../../docs/tickets/README.md). Detailed acceptance criteria and tickets 10–11 remain here.
+Status: plan approved. Ticket 01 is implemented and locally verified; tickets 02–11 are not started. No external issues published. Tickets 01–09 have concise human summaries in [docs](../../../docs/tickets/README.md). Detailed acceptance criteria and tickets 10–11 remain here.
 
 Source: [implementation spec](../campground-booking-spec.md). Each feature includes HTTP-level tests and incremental Postman evidence. No frontend is required.
 

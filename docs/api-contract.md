@@ -1,6 +1,6 @@
 # API
 
-**Status:** proposed paths, fields, validation, and responses. Nothing implemented yet.
+**Status:** registration, login, and current user are implemented. Other endpoints remain proposed and unimplemented.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -46,8 +46,8 @@ Example booking:
 Dates use `YYYY-MM-DD`; examples are not fixed test dates.
 PUT accepts partial updates and validates the merged booking. Reject unexpected fields and ownership changes.
 
-Proposed validation: required nonempty contact fields; telephone stored as a string; trimmed/lowercase unique email; password at least 8 characters.
-Hash passwords with salted bcrypt. Never trim passwords.
+Authentication validation: required nonempty string contact fields; telephone stored as a string; trimmed/lowercase unique email with valid email shape; password at least 8 characters and at most 72 UTF-8 bytes. Reject unknown fields, including role. Registration always creates a `user`.
+Hash passwords with salted bcrypt at cost 10. Never trim passwords. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Authentication uses one-hour HS256 Bearer JWTs with account ID in `sub`; middleware loads the current stored account. No cookies are issued or accepted.
 
 ## Responses
 
@@ -67,5 +67,5 @@ Hash passwords with salted bcrypt. Never trim passwords.
 | Email already registered | 409 |
 | Unexpected server failure | 500 |
 
-Logout clears any issued auth cookie. Postman clears its saved TOKEN after success.
-A copied unexpired JWT remains usable. Cookie transport settings remain undecided; Bearer JWT is the core contract.
+Logout (ticket 09, not implemented) clears any issued auth cookie. Postman clears its saved TOKEN after success.
+A copied unexpired JWT remains usable. Ticket 01 uses Bearer JWT transport only.

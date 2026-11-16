@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "Campground Booking \u2014 Ticket 01 Authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order against a designated test database. Generates one ordinary user per run; does not delete existing accounts. Credentials and TOKEN are empty in this export. No Atlas performance claim."
+  },
+  "variable": [
+    {
+      "key": "TOKEN",
+      "value": ""
+    },
+    {
+      "key": "RUN_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "RUN_PASSWORD",
+      "value": ""
+    },
+    {
+      "key": "WRONG_PASSWORD",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Example\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('RUN_EMAIL', pm.environment.get('TEST_EMAIL') || ('auth-' + pm.variables.replaceIn('{{$guid}}') + '@example.test'));",
+              "pm.collectionVariables.set('RUN_PASSWORD', pm.environment.get('TEST_PASSWORD') || pm.variables.replaceIn('{{$guid}}'));",
+              "pm.collectionVariables.set('TOKEN', '');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
+              "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
+              "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
+              "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
+              "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Current user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Current account', () => pm.expect(body.data.email).to.eql(pm.collectionVariables.get('RUN_EMAIL').trim().toLowerCase()));",
+              "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Example\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing telephone",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Example\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject administrator registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Example\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\",\n  \"role\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incorrect password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{WRONG_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('WRONG_PASSWORD', pm.collectionVariables.get('RUN_PASSWORD') === 'wrong-password' ? 'other-password' : 'wrong-password');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/me",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
