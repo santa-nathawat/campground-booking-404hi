@@ -1,6 +1,6 @@
 # Verification plan and implementation sequence
 
-Status: Tickets 01–09 local checks passed; see [logout evidence](logout-implementation.md); see [administrator booking evidence](admin-bookings-implementation.md); see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
+Status: Tickets 01–09 local checks passed; see [logout evidence](logout-implementation.md); see [administrator booking evidence](admin-bookings-implementation.md); see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). Ticket 10 Atlas/demo/timing verification is complete; see [measured evidence and repeat-run instructions](../../docs/demo-verification.md). The proposed procedures below are historical planning context; actual results are authoritative in that evidence.
 
 ## Meaningful test coverage
 

@@ -4,7 +4,7 @@ Topic 2 project for 2110503 Software Development Practice.
 
 Build a REST API for campground stays of 1–3 nights. Test with Postman. No frontend required.
 
-**Status:** Tickets 01–09 authentication, logout, campgrounds, administrator setup, and owner/administrator booking CRUD are implemented and locally verified. Full-project Atlas/timing verification, diagrams, and presentation remain pending.
+**Status:** Tickets 01–10 are complete: backend features, the integrated Postman demo, and Atlas response-time verification passed. Each of three final demo runs passed 121 requests/403 assertions; the slowest request was 319 ms. See [demo evidence and repeat-run instructions](docs/demo-verification.md). Diagrams and presentation remain pending.
 
 ## Run the API
 

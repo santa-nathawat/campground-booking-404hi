@@ -1,0 +1,78 @@
+{
+  "startedAt": "2026-11-16T14:31:36.780Z",
+  "runtime": "v26.12.1",
+  "machine": {
+    "platform": "darwin",
+    "release": "25.6.0",
+    "arch": "arm64",
+    "cpu": "Apple M5",
+    "memoryGiB": 16
+  },
+  "network": "Local loopback HTTP; database uses the host network to configured Atlas. Connection type/location not independently verified.",
+  "runner": {
+    "name": "Postman CLI",
+    "version": "1.76.0"
+  },
+  "atlas": {
+    "region": "unverified",
+    "tier": "unverified"
+  },
+  "runs": [
+    {
+      "runId": "639bcce6-0ab8-4ecc-9f9a-1b543a55ac7c",
+      "condition": "First collection after application restart and administrator preflight; Atlas already connected, not Atlas cold start",
+      "before": {
+        "users": 15,
+        "campgrounds": 9,
+        "bookings": 0
+      },
+      "requests": [],
+      "assertions": 0,
+      "failures": [
+        {
+          "type": "runner",
+          "name": "Incomplete request metrics"
+        }
+      ],
+      "exitCode": null,
+      "failed": true,
+      "after": {
+        "users": 17,
+        "campgrounds": 9,
+        "bookings": 0
+      },
+      "maxMs": null,
+      "requestCount": 0
+    },
+    {
+      "runId": "8f40635b-35e9-43df-9da6-3eaa34fc92f4",
+      "condition": "Repeated collection on same backend",
+      "before": {
+        "users": 17,
+        "campgrounds": 9,
+        "bookings": 0
+      },
+      "requests": [],
+      "assertions": 0,
+      "failures": []
+    }
+  ],
+  "databaseTarget": "Configured Atlas database",
+  "initialCounts": {
+    "users": 15,
+    "campgrounds": 9,
+    "bookings": 0
+  },
+  "applicationStartupMs": 714,
+  "passed": false,
+  "interrupted": "Stopped by implementer after observing Postman sandbox timeout in assertion instrumentation",
+  "blocker": {
+    "type": "VerificationHarnessError",
+    "step": "CLI assertion wrapper and wrapped console metrics parsing"
+  },
+  "finalCounts": {
+    "users": 18,
+    "campgrounds": 9,
+    "bookings": 0
+  }
+}

@@ -1,6 +1,6 @@
 # Verification
 
-**Status:** Tickets 01–09 pass 171 automated tests; type checking and build pass. The updated authentication/logout Postman collection passes 13 requests/41 assertions with zero failures. See [ticket 09 evidence](../.agents/context/logout-implementation.md) and [prior collection evidence](../.agents/context/admin-bookings-implementation.md). Atlas and full-project timing checks remain pending.
+**Status:** Tickets 01–09 pass 171 automated tests; type checking and build pass. The updated authentication/logout Postman collection passes 13 requests/41 assertions with zero failures. See [ticket 09 evidence](../.agents/context/logout-implementation.md) and [prior collection evidence](../.agents/context/admin-bookings-implementation.md). Full-project Atlas verification passed three sequential Postman CLI runs (121 requests/403 assertions each; maxima 319/193/188 ms). Recovery and interrupted-run cleanup passed. See [final demo evidence](demo-verification.md).
 
 Run `npm run typecheck`, `npm run build`, and `npm test` from `backend/`. See the [Postman instructions](../postman/README.md) for HTTP requests.
 
@@ -25,7 +25,7 @@ Use Postman Runner or Newman with one administrator, two users, and at least thr
 Generate dates at runtime. Save created IDs and clean up only the run's bookings.
 Keep live credentials and tokens out of exported files.
 
-Proposed timing run: local backend, Atlas test database, 20 bookings, sequential requests.
+Verified timing run: local backend, configured Atlas database, 20 run-owned bookings, sequential requests. Actual conditions and per-request results are recorded in [demo verification](demo-verification.md).
 Every request must finish within 3000 ms, including registration/login.
 Record machine, network, Atlas region/tier, dataset, request count, and cold/repeated timings.
 Report individual failures. Do not claim results for untested load.
@@ -39,7 +39,7 @@ Report individual failures. Do not claim results for untested load.
 5. Postman collection and timing evidence.
 6. Baseline comparison, diagrams, contributors, presentation, live demo.
 
-Authentication/campground HTTP tests use Vitest/Supertest with isolated MongoDB; seed tests execute `npm run seed:campgrounds` directly against a separate temporary database. They verify repeat runs, partial restoration, edited/unrelated campground preservation, and unchanged raw bookings. Detailed [ticket 02 evidence](../.agents/context/campgrounds-implementation.md) records local conditions. Versions are locked in `backend/package-lock.json`. Deployment remains undecided. No Atlas timing claim is made.
+Authentication/campground HTTP tests use Vitest/Supertest with isolated MongoDB; seed tests execute `npm run seed:campgrounds` directly against a separate temporary database. They verify repeat runs, partial restoration, edited/unrelated campground preservation, and unchanged raw bookings. Detailed [ticket 02 evidence](../.agents/context/campgrounds-implementation.md) records local conditions. Versions are locked in `backend/package-lock.json`. Deployment remains undecided. These earlier feature checks are supplemented by the final Atlas timing evidence above.
 
 Administrator tests execute `npm run setup:admin` directly against isolated MongoDB, then log in and create/browse through HTTP. They cover invalid/missing inputs, hashed passwords, duplicate ordinary/admin email preservation, database failures, and sanitized errors. Campground POST tests cover validation, denied access, persistence, and current stored roles. See [ticket 03 evidence](../.agents/context/admin-campgrounds-implementation.md).
 
