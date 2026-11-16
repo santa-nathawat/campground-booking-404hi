@@ -13,3 +13,7 @@ export async function getCampground(id: string) {
   if (!campground) throw new HttpError(404, 'Campground not found');
   return publicCampground(campground);
 }
+
+export async function createCampground(input: { name: string; address: string; telephone: string }) {
+  return publicCampground(await Campground.create(input));
+}

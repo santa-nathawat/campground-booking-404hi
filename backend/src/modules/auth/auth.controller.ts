@@ -1,16 +1,7 @@
 import type { RequestHandler } from 'express';
-import { z } from 'zod';
+import { registration, credentials } from './auth.validation.js';
 import { HttpError } from '../../middleware/errors.js';
 import * as auth from './auth.service.js';
-
-const contact = z.string().trim().min(1);
-const email = z.string().trim().toLowerCase().email();
-const password = z.string().min(8).refine(value => Buffer.byteLength(value) <= 72);
-const registration = z.strictObject({ name: contact, telephone: contact, email, password });
-const credentials = z.strictObject({
-  email,
-  password: z.string().min(1).refine(value => Buffer.byteLength(value) <= 72),
-});
 
 export function createAuthController(secret: string): Record<'register' | 'login' | 'me', RequestHandler> {
   return {
