@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** app/server setup, shared middleware, auth/campground modules, and the campground seed script are implemented. Bookings and administrator provisioning remain planned.
+**Status:** app/server setup, shared middleware, auth/campground modules, campground seed/admin setup scripts, and administrator creation are implemented. Bookings remain planned.
 
 ## Stack
 

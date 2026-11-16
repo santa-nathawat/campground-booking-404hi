@@ -10,3 +10,8 @@ export function protect(secret: string): RequestHandler {
     next();
   };
 }
+
+export const requireAdmin: RequestHandler = (_req, res, next) => {
+  if (res.locals.user.role !== 'admin') throw new HttpError(403, 'Administrator access required');
+  next();
+};

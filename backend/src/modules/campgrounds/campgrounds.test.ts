@@ -110,3 +110,59 @@ describe('authenticated browsing', () => {
     }
   });
 });
+
+describe('administrator campground creation', () => {
+  const create = (body: object) => request(app).post('/api/v1/campgrounds').auth(token, { type: 'bearer' }).send(body);
+
+  it('trims fields and returns only the public persisted destination', async () => {
+    await User.findByIdAndUpdate(userId, { role: 'admin' });
+    const response = await create({ name: ' Test Campground ', address: ' 1 Test Road ', telephone: ' 0812345678 ' });
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual({ success: true, data: { id: expect.any(String), ...destination } });
+    expect(await Campground.findById(response.body.data.id)).toMatchObject(destination);
+    expect((await browse()).body.data).toContainEqual(response.body.data);
+  });
+
+  it.each(['name', 'address', 'telephone'])('rejects missing, blank, or non-string %s', async field => {
+    await User.findByIdAndUpdate(userId, { role: 'admin' });
+    for (const value of [undefined, null, '', '   ', 123, true, [], {}]) {
+      const response = await create({ ...destination, [field]: value });
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ success: false, message: 'Invalid campground fields' });
+    }
+    expect(await Campground.countDocuments()).toBe(0);
+  });
+
+  it('rejects unexpected fields and non-object bodies without writes', async () => {
+    await User.findByIdAndUpdate(userId, { role: 'admin' });
+    for (const body of [[], {}, { ...destination, _id: new mongoose.Types.ObjectId() }, { ...destination, bookings: [] }]) {
+      expect((await create(body)).status).toBe(400);
+    }
+    const missing = await request(app).post('/api/v1/campgrounds').auth(token, { type: 'bearer' });
+    expect(missing.status).toBe(400);
+    const malformed = await request(app).post('/api/v1/campgrounds').auth(token, { type: 'bearer' }).set('Content-Type', 'application/json').send('{');
+    expect(malformed.status).toBe(400);
+    expect(await Campground.countDocuments()).toBe(0);
+  });
+
+  it('denies ordinary users before field validation', async () => {
+    for (const body of [destination, {}]) {
+      const response = await create(body);
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ success: false, message: 'Administrator access required' });
+    }
+    expect(await Campground.countDocuments()).toBe(0);
+  });
+
+  it('denies missing, invalid, expired, and deleted-account tokens without writes', async () => {
+    const deleted = await User.create({ name: 'Deleted', telephone: '0800000000', email: 'deleted@example.test', passwordHash: 'unused', role: 'admin' });
+    const deletedToken = jwt.sign({}, secret, { subject: deleted.id, expiresIn: '1h' });
+    await deleted.deleteOne();
+    for (const header of ['', 'Basic abc', 'Bearer invalid', `Bearer ${jwt.sign({}, secret, { subject: userId, expiresIn: -1 })}`, `Bearer ${deletedToken}`]) {
+      const response = await request(app).post('/api/v1/campgrounds').set('Authorization', header).send(destination);
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+    }
+    expect(await Campground.countDocuments()).toBe(0);
+  });
+});
