@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Campground Booking \u2014 Ticket 01 Authentication",
+    "name": "Campground Booking \u2014 Authentication and Logout (Tickets 01, 09)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Run in order against a designated test database. Generates one ordinary user per run; does not delete existing accounts. Credentials and TOKEN are empty in this export. No Atlas performance claim."
+    "description": "Run in order against a designated test database. Generates one ordinary user per run; does not delete existing accounts. Credentials and TOKEN are empty in this export. No Atlas performance claim. Logout clears the client TOKEN. A runtime-only copied JWT demonstrates that logout does not revoke unexpired tokens; no cookies are issued or accepted."
   },
   "variable": [
     {
@@ -70,7 +70,8 @@
               "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
               "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
               "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
-              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);",
+              "pm.test('No authentication cookies issued', () => pm.expect(pm.response.headers.has('Set-Cookie')).to.eql(false));"
             ]
           }
         }
@@ -112,7 +113,8 @@
               "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
               "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
               "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
-              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);",
+              "pm.test('No authentication cookies issued', () => pm.expect(pm.response.headers.has('Set-Cookie')).to.eql(false));"
             ]
           }
         }
@@ -362,6 +364,141 @@
               "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
               "const body = pm.response.json();",
               "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/logout",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.variables.set('COPIED_TOKEN', pm.collectionVariables.get('TOKEN'));",
+              "pm.variables.set('TOKEN', pm.collectionVariables.get('TOKEN'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Empty success response', () => pm.expect(body).to.eql({ success: true, data: {} }));",
+              "pm.test('No authentication cookies issued', () => pm.expect(pm.response.headers.has('Set-Cookie')).to.eql(false));",
+              "if (pm.response.code === 200 && body.success === true) {",
+              "  pm.collectionVariables.set('TOKEN', '');",
+              "  pm.variables.set('TOKEN', '');",
+              "}",
+              "pm.test('Saved client token cleared', () => pm.expect(pm.collectionVariables.get('TOKEN')).to.eql(''));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Current user after logout",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Client has no saved token', () => pm.expect(pm.collectionVariables.get('TOKEN')).to.eql(''));",
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Authentication error', () => pm.expect(pm.response.json()).to.eql({ success: false, message: 'Not authorized' }));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Copied unexpired token remains valid",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/me",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{COPIED_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Same account', () => pm.expect(body.data.email).to.eql(pm.collectionVariables.get('RUN_EMAIL').trim().toLowerCase()));",
+              "pm.test('Client token stays cleared', () => pm.expect(pm.collectionVariables.get('TOKEN')).to.eql(''));",
+              "pm.variables.unset('COPIED_TOKEN');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Logout without credentials",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/auth/logout",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "pm.test('Authentication error', () => pm.expect(pm.response.json()).to.eql({ success: false, message: 'Not authorized' }));"
             ]
           }
         }

@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** app/server setup, shared middleware, auth/campground/booking modules, seed/admin setup scripts, and owner/administrator booking CRUD are implemented through ticket 08.
+**Status:** app/server setup, shared middleware, auth/campground/booking modules, seed/admin setup scripts, and owner/administrator booking CRUD are implemented through ticket 09, including logout.
 
 ## Stack
 

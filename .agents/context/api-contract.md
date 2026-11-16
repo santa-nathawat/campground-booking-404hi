@@ -1,6 +1,6 @@
 # API contract
 
-Status: Tickets 01–08 adopt authentication, campgrounds, and owner/administrator booking CRUD. See [booking conventions and evidence](bookings-implementation.md). Administrator access to others (08) is implemented; logout (09) remains proposed. See [ticket 08 evidence](admin-bookings-implementation.md). Business behavior is agreed in [requirements](requirements.md); implemented contracts follow the adopted conventions below; remaining logout details are recommendations. Registration, login, current-user, campground list/detail/create, and owner/administrator booking CRUD endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
+Status: Tickets 01–09 implement authentication/logout, campgrounds, and owner/administrator booking CRUD. Human-facing [API documentation](../../docs/api-contract.md) is authoritative. See [logout evidence](logout-implementation.md), [authentication conventions](auth-implementation.md), [campground conventions](campgrounds-implementation.md), [booking conventions](bookings-implementation.md), and [administrator evidence](admin-bookings-implementation.md).
 
 ## Conventions
 
@@ -17,7 +17,7 @@ All paths below are relative to `/api/v1`.
 | POST | `/auth/register` | Public; creates ordinary user | 201 + token and public user | FR-01 |
 | POST | `/auth/login` | Public | 200 + token and public user | FR-02 |
 | GET | `/auth/me` | Authenticated | 200 + public current user | Supporting authentication check |
-| GET | `/auth/logout` | Authenticated | 200; clear issued auth cookie | FR-02; lecture-compatible method |
+| GET | `/auth/logout` | Authenticated | 200 + empty object in `data`; client clears token | FR-02; lecture-compatible method |
 | GET | `/campgrounds` | Authenticated | 200 + campground list | FR-03 |
 | GET | `/campgrounds/:id` | Authenticated | 200 + campground | Supports selection for FR-03 |
 | POST | `/campgrounds` | Administrator | 201 + new campground | Agreed supporting behavior |
@@ -77,7 +77,7 @@ Authentication/role middleware runs before protected resource operations. For bo
 
 ## Logout limits
 
-Propose retaining the lecture's GET logout path and token response style for easy comparison. The Postman logout request clears its saved TOKEN after a successful response; the server clears an authentication cookie if one was issued. A subsequent request without credentials returns 401. A separately copied unexpired JWT may still authenticate, as explicitly accepted in ADR-0007. Do not describe client token deletion as server-side revocation. Ticket 01 issues and accepts no cookies; authentication uses Bearer JWTs. Logout remains ticket 09.
+Ticket 09 adopts authenticated GET `/auth/logout`, returning 200 with `{ "success": true, "data": {} }`. The Postman logout request clears its saved TOKEN after success; subsequent requests without credentials return 401. A separately copied unexpired JWT remains usable, as accepted in ADR-0007. Tokens expire one hour after issuance. Authentication uses Bearer headers only: no cookies are issued or accepted, and logout emits no `Set-Cookie`. There is no server-side revocation or session state. See [implementation evidence](logout-implementation.md).
 
 Ticket 03 implements administrator campground POST with strict trimmed nonempty string fields, current stored role enforcement, and the existing public serializer. See [administrator conventions and evidence](admin-campgrounds-implementation.md).
 
