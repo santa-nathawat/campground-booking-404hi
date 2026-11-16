@@ -1,6 +1,6 @@
 # Requirements
 
-**Status:** agreed business rules. Tickets 01–03 authentication, campground reads/seeding, and administrator setup/creation are implemented; remaining features are pending.
+**Status:** agreed business rules. Tickets 01–07 authentication, campgrounds, and owned booking CRUD are implemented. Administrator access to other users’ bookings (08) and logout (09) remain pending.
 
 ## Users and bookings
 
@@ -21,7 +21,7 @@
 - Login required for campgrounds and bookings.
 - Use check-in/check-out dates in the Thailand calendar (`Asia/Bangkok`).
 - Check-in today or later. Check-out 1–3 days later.
-- Apply date rules when creating bookings or changing dates.
+- Apply date rules when creating bookings or making any update, including campground-only edits. Historical bookings can be rescheduled with a complete valid current/future stay.
 - Owners and administrators may change the campground and dates. Booking ownership stays fixed.
 - Administrators may create their own bookings under the same rules.
 - No booking-count limit. Overlapping bookings are allowed. No capacity or pitch tracking.

@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** app/server setup, shared middleware, auth/campground modules, campground seed/admin setup scripts, and administrator creation are implemented. Bookings remain planned.
+**Status:** app/server setup, shared middleware, auth/campground/booking modules, seed/admin setup scripts, and owned booking CRUD are implemented. Administrator access to others’ bookings remains ticket 08.
 
 ## Stack
 
@@ -53,9 +53,9 @@ Keep each model in its owning module. Keep tests beside the code.
 
 - Load the current user after verifying JWT. Use the current stored role.
 - Set booking owner from the authenticated user, never the request body.
-- Scope ordinary users' booking queries to their own records.
+- Scope all current booking queries to the caller; ticket 08 will add administrator access to others.
 - Keep passwords, tokens, and Atlas credentials out of Git.
 - Never carry over Assignment 7's fallback administrator or signing secret.
 
-Date-only storage as `YYYY-MM-DD` is proposed. Count calendar nights, not elapsed local-time hours.
-Past bookings remain viewable/deletable. A campground-only edit preserves unchanged past dates; changing dates revalidates both.
+Booking dates are stored as validated `YYYY-MM-DD` strings. Count calendar nights, not elapsed local-time hours.
+Past bookings remain viewable/deletable. Every update validates the complete resulting stay, including campground-only edits. Historical bookings must be rescheduled to valid current/future dates before an edit can succeed.

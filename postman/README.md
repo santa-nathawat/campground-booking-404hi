@@ -37,3 +37,13 @@ postman collection run postman/admin-campgrounds.postman_collection.json -e post
 ```
 
 Ten requests cover unauthenticated denial, rejected public role escalation, ordinary-user registration/denial, administrator login, missing/unknown field rejection, successful creation, and ordinary-user list/detail visibility. It creates one ordinary account and one campground per run, preserves existing records, and needs no seeded destinations. There is no public cleanup endpoint; use a temporary database for disposable runs. Clear locally supplied credentials and generated tokens before exporting. Automated tests additionally execute the setup command, check duplicate-account preservation, and verify revoked administrator access with an existing token.
+
+## Bookings (tickets 04–07)
+
+Seed demo campgrounds, then run `bookings.postman_collection.json` with the local environment against a designated test database. The collection generates two accounts, separate tokens, and future Bangkok calendar dates; committed runtime variables remain empty. Run requests in order. The 29 requests/75 assertions cover creation, invalid duration/ownership input, both own-only lists, detail, cross-user read/update/delete denials, merged updates, persisted read-back, deletion, and empty lists. Cleanup removes only the two bookings created by the run; generated accounts remain until the disposable database is removed.
+
+```sh
+postman collection run postman/bookings.postman_collection.json -e postman/local.postman_environment.json --no-report-events
+```
+
+Clear generated credentials/tokens before exporting. Use a disposable database for account cleanup; there is no public reset endpoint.
