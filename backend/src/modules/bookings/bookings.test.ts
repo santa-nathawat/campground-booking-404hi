@@ -141,3 +141,56 @@ describe('calendar boundary rules', () => {
     expect(() => validateStay('2100-02-29', '2100-03-01', now)).toThrow('Invalid booking dates');
   });
 });
+
+describe('booking reads', () => {
+  const read = (path = '', credential = token) => request(app).get(`/api/v1/bookings${path}`).auth(credential, { type: 'bearer' });
+
+  it('returns an empty list', async () => {
+    expect((await read()).body).toEqual({ success: true, count: 0, data: [] });
+  });
+  it('isolates both users and returns only public booking and destination fields in ID order', async () => {
+    const first = new mongoose.Types.ObjectId('cafe00000000000000000001');
+    const second = new mongoose.Types.ObjectId('cafe00000000000000000002');
+    const other = await create({ campgroundId, ...stay }, otherToken);
+    await Booking.collection.insertMany([
+      { _id: second, owner: new mongoose.Types.ObjectId(ownerId), campground: new mongoose.Types.ObjectId(campgroundId), ...stay, secret: 'private', passwordHash: 'private' },
+      { _id: first, owner: new mongoose.Types.ObjectId(ownerId), campground: new mongoose.Types.ObjectId(campgroundId), ...stay },
+    ]);
+    await Campground.collection.updateOne({ _id: new mongoose.Types.ObjectId(campgroundId) }, { $set: { bookings: ['private'], secret: 'private' } });
+    const data = [first, second].map(id => ({ id: String(id), ownerId, campground: { id: campgroundId, ...destination }, ...stay }));
+    expect((await read()).body).toEqual({ success: true, count: 2, data });
+    expect((await read(`/${first}`)).body).toEqual({ success: true, data: data[0] });
+    expect((await read('', otherToken)).body).toEqual({ success: true, count: 1, data: [other.body.data] });
+    expect((await read(`/${first}`, otherToken)).status).toBe(403);
+    expect((await read(`/${other.body.data.id}`)).status).toBe(403);
+  });
+  it('keeps historical bookings visible', async () => {
+    const old = await Booking.create({ owner: ownerId, campground: campgroundId, checkIn: '2020-01-01', checkOut: '2020-01-02' });
+    expect((await read()).body.data[0].checkIn).toBe('2020-01-01');
+    expect((await read(`/${old.id}`)).status).toBe(200);
+  });
+  it('restricts administrators to their own records until ticket 08', async () => {
+    const own = await create({ campgroundId, ...stay });
+    const other = await create({ campgroundId, ...stay }, otherToken);
+    await User.findByIdAndUpdate(ownerId, { role: 'admin' });
+    expect((await read()).body.data).toEqual([own.body.data]);
+    expect((await read(`/${other.body.data.id}`)).status).toBe(403);
+  });
+  it('uses documented ID and missing-resource errors', async () => {
+    for (const id of ['bad', '123456789012', 'g'.repeat(24), 'a'.repeat(23), 'a'.repeat(25)]) {
+      const response = await read(`/${id}`);
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ success: false, message: 'Invalid booking identifier' });
+    }
+    const response = await read(`/${new mongoose.Types.ObjectId()}`);
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ success: false, message: 'Booking not found' });
+  });
+  it.each(['', '/invalid', '/cafe00000000000000000001'])('requires authentication before reading %s', async path => {
+    for (const header of ['', 'Bearer invalid', `Bearer ${jwt.sign({}, secret, { subject: ownerId, expiresIn: -1 })}`]) {
+      const response = await request(app).get(`/api/v1/bookings${path}`).set('Authorization', header);
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+    }
+  });
+});

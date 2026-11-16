@@ -9,3 +9,13 @@ export const create: RequestHandler = async (req, res) => {
   const data = await bookings.createBooking(res.locals.user.id, input.data);
   res.status(201).json({ success: true, data });
 };
+
+export const list: RequestHandler = async (_req, res) => {
+  const data = await bookings.listBookings(res.locals.user.id);
+  res.json({ success: true, count: data.length, data });
+};
+
+export const detail: RequestHandler<{ id: string }> = async (req, res) => {
+  const data = await bookings.getBooking(req.params.id, res.locals.user.id);
+  res.json({ success: true, data });
+};

@@ -77,3 +77,7 @@ A copied unexpired JWT remains usable. Ticket 01 uses Bearer JWT transport only.
 ## Adopted booking creation (ticket 04)
 
 POST `/bookings` accepts exactly `campgroundId`, `checkIn`, and `checkOut`. Store dates as validated `YYYY-MM-DD` strings. Return 201 with `{ id, ownerId, campground, checkIn, checkOut }` in `data`; campground contains `id`, `name`, `address`, and `telephone`. Owner comes from authentication. Overlaps and more than three bookings are allowed. Invalid fields/dates return 400 (`Invalid booking fields` / `Invalid booking dates`); campground errors follow the existing 400/404 convention.
+
+## Adopted booking reads (ticket 05)
+
+GET `/bookings` returns only the caller's records ordered by ID ascending, with returned-item `count`. GET `/bookings/:id` returns one owned booking using the creation representation. Historical bookings remain readable. Malformed booking IDs return 400 (`Invalid booking identifier`), absent records 404 (`Booking not found`), and another owner's booking 403 (`Booking access denied`). Authentication precedes ID validation. Administrators are also own-only until ticket 08 implements the broader access described in the endpoint table.
