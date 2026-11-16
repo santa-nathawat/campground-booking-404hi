@@ -10,3 +10,10 @@ Keep `docs/` short and human-readable. Put research, interview history, source m
 - Derive booking ownership from the authenticated user. Enforce owner/admin access on lists, reads, and writes.
 - Keep credentials and live tokens out of Git, exports, and evidence.
 - Verify implemented behavior using [the test checklist](docs/verification.md) and detailed context scenarios. Report only checks actually run.
+
+## Implementation workflow
+
+- Create a separate branch before editing each ticket; use `codex/<ticket-number>-<short-name>`.
+- Commit throughout the work at small, meaningful checkpoints rather than saving the entire ticket for one commit.
+- Use `<action>: <message>` commit messages, with actions such as `feat`, `fix`, `refactor`, `chore`, `docs`, and `test`.
+- Write concise, readable code with only the abstractions needed for the requirements. Prefer straightforward implementations while preserving validation, security, and clarity.
