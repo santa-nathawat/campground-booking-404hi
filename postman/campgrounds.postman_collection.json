@@ -1,0 +1,400 @@
+{
+  "info": {
+    "name": "Campground Booking \u2014 Ticket 02 Browse",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Seed three fictional demo campgrounds first. Run in order against a designated test database. Creates one ordinary user and preserves existing records. Clear runtime credentials before exporting. No Atlas performance claim."
+  },
+  "variable": [
+    {
+      "key": "TOKEN",
+      "value": ""
+    },
+    {
+      "key": "RUN_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "RUN_PASSWORD",
+      "value": ""
+    },
+    {
+      "key": "CAMPGROUND_ID",
+      "value": ""
+    },
+    {
+      "key": "CAMPGROUND_TELEPHONE",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Example\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('RUN_EMAIL', 'browse-' + pm.variables.replaceIn('{{$guid}}') + '@example.test');",
+              "pm.collectionVariables.set('RUN_PASSWORD', pm.variables.replaceIn('{{$guid}}'));",
+              "pm.collectionVariables.set('TOKEN', '');",
+              "pm.collectionVariables.set('CAMPGROUND_ID', '');",
+              "pm.collectionVariables.set('CAMPGROUND_TELEPHONE', '');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
+              "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
+              "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public user only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['email', 'id', 'name', 'role', 'telephone']));",
+              "pm.test('Ordinary user', () => pm.expect(body.data.role).to.eql('user'));",
+              "pm.test('Token returned', () => pm.expect(body.token).to.be.a('string').and.not.empty);",
+              "if (pm.response.code < 300) pm.collectionVariables.set('TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List campgrounds",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Seeded list and count', () => { pm.expect(body.data).to.be.an('array'); pm.expect(body.data.length).to.be.at.least(3); pm.expect(body.count).to.eql(body.data.length); });",
+              "pm.test('Public destination fields only', () => body.data.forEach(c => { pm.expect(Object.keys(c).sort()).to.eql(['address', 'id', 'name', 'telephone']); ['name', 'address', 'telephone'].forEach(k => pm.expect(c[k]).to.be.a('string').and.not.empty); pm.expect(c.id).to.match(/^[a-f0-9]{24}$/); }));",
+              "const seeded = body.data.find(c => c.id === 'cafe00000000000000000001');",
+              "pm.test('Demo seed available with leading telephone zero', () => { pm.expect(seeded).to.be.an('object'); pm.expect(seeded.telephone).to.match(/^0/); });",
+              "if (seeded) { pm.collectionVariables.set('CAMPGROUND_ID', seeded.id); pm.collectionVariables.set('CAMPGROUND_TELEPHONE', seeded.telephone); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campground detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/{{CAMPGROUND_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public destination fields only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['address', 'id', 'name', 'telephone']));",
+              "pm.test('Selected destination and string telephone', () => { pm.expect(body.data.id).to.eql(pm.collectionVariables.get('CAMPGROUND_ID')); pm.expect(body.data.telephone).to.be.a('string').and.eql(pm.collectionVariables.get('CAMPGROUND_TELEPHONE')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing token: list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid token: list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing token: detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/{{CAMPGROUND_ID}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid token: detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/{{CAMPGROUND_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Malformed identifier",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/invalid-id",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing campground",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/000000000000000000000000",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication before ID validation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/invalid-id",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));",
+              "pm.test('Only public error fields', () => pm.expect(Object.keys(body).sort()).to.eql(['message', 'success']));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

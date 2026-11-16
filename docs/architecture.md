@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** app/server setup, configuration, shared authentication/error middleware, and the auth module are implemented. Campgrounds, bookings, and setup scripts remain planned.
+**Status:** app/server setup, shared middleware, auth/campground modules, and the campground seed script are implemented. Bookings and administrator provisioning remain planned.
 
 ## Stack
 
@@ -44,7 +44,7 @@ A route group contains several endpoints, such as register, login, and logout.
 ## Models
 
 - **User:** name, telephone, unique email, password hash, role.
-- **Campground:** name, address, telephone.
+- **Campground:** required trimmed name, address, telephone strings; public reads expose these fields plus `id`. Fixed seed IDs identify fictional demo fixtures.
 - **Booking:** owner, campground, check-in, check-out.
 
 Keep each model in its owning module. Keep tests beside the code.

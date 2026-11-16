@@ -5,6 +5,7 @@ Detailed notes for agents. Human docs stay in `docs/`; the root README is the hu
 ## Read by task
 
 - Authentication implementation, baseline mapping, and local verification: [ticket 01 evidence](auth-implementation.md).
+- Campground read/seed conventions and verification: [ticket 02 evidence](campgrounds-implementation.md).
 
 - Implementing approved slices: [detailed tickets](ticket-drafts/README.md). Human summaries cover tickets 01–09; external publication remains pending.
 - Turning the project plan into tickets: [implementation spec](campground-booking-spec.md). Testing boundaries confirmed; tracker publication pending.

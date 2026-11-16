@@ -1,6 +1,6 @@
 # Requirements and acceptance checks
 
-Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Ticket 01 local checks passed; see [authentication evidence](auth-implementation.md). Remaining acceptance checks are pending.
+Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Tickets 01–02 local checks passed; see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). Remaining acceptance checks are pending.
 
 ## Authority and scope
 

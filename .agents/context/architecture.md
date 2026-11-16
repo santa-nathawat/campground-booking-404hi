@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Ticket 01 authentication and shared server foundation are implemented; the remaining modules are planned. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/shared files and planned campground, booking, and setup-script files.
+Status: Tickets 01–02 authentication, campground reads, seeding, and shared server foundation are implemented; bookings and administrator provisioning are planned. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/campground/shared files, a campground seed script, and planned booking/administrator setup files.
 
 ## Backend organization
 
@@ -72,6 +72,6 @@ Expired bookings remain available for viewing/deletion. If only the campground c
 
 ## Setup responsibilities
 
-The team provisions the Atlas cluster/database. Application setup must document required environment-variable names using placeholders. Credentials and connection strings stay local. The future campground seed command inserts missing fixture records using stable seed identities and preserves existing records and bookings; it is not a database-reset command. Administrator provisioning is separate and takes credentials from explicit local input/configuration rather than source literals.
+The team provisions the Atlas cluster/database. Application setup must document required environment-variable names using placeholders. Credentials and connection strings stay local. The campground seed command inserts three fictional demo fixtures with fixed ObjectIds and `$setOnInsert`, preserving existing records and bookings. It validates only `MONGO_URI`, disconnects after completion/failure, and reports sanitized failures; it is not a database-reset command. Administrator provisioning is separate and takes credentials from explicit local input/configuration rather than source literals.
 
-Authentication setup/run commands are documented in the root README. Local authentication tests and a built-app Postman run have passed; see [evidence](auth-implementation.md). Atlas connection, campground seed, and administrator setup remain unverified/unimplemented.
+Authentication setup/run commands are documented in the root README. Local authentication tests and a built-app Postman run have passed; see [evidence](auth-implementation.md). Campground seeding and browsing are locally verified in [ticket 02 evidence](campgrounds-implementation.md). Atlas access and administrator setup remain unverified/unimplemented.

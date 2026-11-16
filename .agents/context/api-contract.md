@@ -1,6 +1,6 @@
 # API contract
 
-Status: Ticket 01 adopts the authentication contract; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, and current-user endpoints are implemented; see [implementation conventions](auth-implementation.md).
+Status: Tickets 01–02 adopt authentication and campground read contracts; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, current-user, and campground list/detail endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
 
 ## Conventions
 
@@ -57,6 +57,10 @@ Create booking:
 These dates are examples, not hardcoded test fixtures. Repeatable tests generate dates relative to the Thailand calendar. Updates may contain `campgroundId`, `checkIn`, and/or `checkOut`; reject an empty update, ownership/role changes, and unexpected fields. Creation never takes an owner ID from the client.
 
 Implemented authentication validation: trim names/contact fields, normalize email by trimming and lowercasing, enforce a unique normalized email, validate email shape, require a password of at least 8 characters and at most 72 UTF-8 bytes, reject unknown fields (including role), and use salted bcrypt at cost 10. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Tokens are one-hour HS256 JWTs with account ID in `sub`. Do not trim or otherwise silently alter passwords. Treat these as application validation conventions, not additional claims about the professor's wording.
+
+## Adopted campground reads
+
+Return only `{ id, name, address, telephone }`, with string telephone values and no booking lists. List all destinations ordered by `_id` ascending, with returned-item `count`; empty data is `[]`. Detail validates a 24-character hexadecimal ID after authentication, returning 400 for malformed IDs and 404 for absent records. The seed command uses fixed fixture ObjectIds and `$setOnInsert`; names are not unique. See [ticket 02 evidence](campgrounds-implementation.md) for fixtures and verification.
 
 ## HTTP errors
 
