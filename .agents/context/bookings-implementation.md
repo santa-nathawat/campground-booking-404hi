@@ -15,3 +15,11 @@ Ticket 04 checkpoint: type checking and all 30 booking tests pass. The boundary 
 GET `/bookings` returns the caller's records ordered by `_id` ascending, with `count`; empty lists return `[]`. GET `/bookings/:id` returns one authorized public booking. Both include public campground details using Mongoose population; listing batches the destination query. Historical records remain readable. Malformed IDs return 400 (`Invalid booking identifier`), missing records 404 (`Booking not found`), and cross-user access 403 (`Booking access denied`). Authentication runs before ID validation. Administrators remain own-only until ticket 08, as explicitly selected by the user.
 
 HTTP tests verify both users' isolation, public-field serialization even with unexpected stored fields, historical reads, ordering, ID conventions, authentication, and administrator own-only access. Postman now includes two overlapping bookings, both own-only lists, detail, cross-user denial, and unauthenticated/malformed-ID failures.
+
+## Ticket 06
+
+PUT accepts a nonempty subset of the three creation fields. Load and authorize the booking before parsing the update, merge with stored values, validate the complete stay, and confirm the destination exists. Write the complete validated tuple atomically with an owner-scoped update; owner never changes. A concurrent deletion yields 404. Concurrent authorized edits use last-write-wins semantics for the complete valid tuple.
+
+The user explicitly rejected the earlier proposal allowing campground-only historical edits: every update requires a valid current/future resulting stay. Historical records can be rescheduled with valid dates. Updated requirements, architecture, contract, verification guidance, and ticket text reflect this decision; earlier kickoff proposals are historical context.
+
+HTTP tests cover campground-only, individual-date, and combined updates, date boundaries, invalid merged stays, nonexistent destinations, strict fields, ownership and authentication precedence, administrator own-only behavior, unchanged state after failure, historical rejection, and successful rescheduling. Postman includes denied edits, ownership-transfer and merged-duration failures, destination/date updates, and a persisted read-back.

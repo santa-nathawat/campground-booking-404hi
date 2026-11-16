@@ -194,3 +194,117 @@ describe('booking reads', () => {
     }
   });
 });
+
+describe('booking updates', () => {
+  const update = (id: string, body: object, credential = token) => request(app).put(`/api/v1/bookings/${id}`).auth(credential, { type: 'bearer' }).send(body);
+  const own = async () => (await create({ campgroundId, ...stay })).body.data.id as string;
+
+  it('accepts campground-only, single-date, and combined changes while preserving the owner', async () => {
+    const id = await own();
+    const second = await Campground.create({ ...destination, name: 'Second' });
+    const campgroundOnly = await update(id, { campgroundId: second.id });
+    expect(campgroundOnly.status).toBe(200);
+    expect(campgroundOnly.body.data).toEqual({ id, ownerId, campground: { id: second.id, ...destination, name: 'Second' }, ...stay });
+    expect((await update(id, { checkIn: '2031-01-01' })).status).toBe(200);
+    expect((await update(id, { checkOut: '2031-01-04' })).status).toBe(200);
+    const combined = await update(id, { campgroundId, checkIn: '2032-02-28', checkOut: '2032-03-02' });
+    expect(combined.status).toBe(200);
+    expect(combined.body.data).toEqual({ id, ownerId, campground: { id: campgroundId, ...destination }, checkIn: '2032-02-28', checkOut: '2032-03-02' });
+    const stored = await Booking.findById(id);
+    expect(String(stored!.owner)).toBe(ownerId);
+    expect(String(stored!.campground)).toBe(campgroundId);
+    expect(stored).toMatchObject({ checkIn: '2032-02-28', checkOut: '2032-03-02' });
+  });
+  it('rejects invalid merged stays and leaves the full stored record unchanged', async () => {
+    const id = await own();
+    const before = await Booking.findById(id).lean();
+    for (const body of [
+      { checkOut: '2031-01-04' }, { checkIn: '2031-01-03' }, { checkIn: '2031-01-04' },
+      { checkIn: '2030-12-30' }, { checkOut: '2031-02-29' },
+      { checkIn: '2032-02-30', checkOut: '2032-03-02' },
+      { campgroundId, checkIn: '2030-01-01', checkOut: '2030-01-02' },
+    ]) {
+      const response = await update(id, body);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid booking dates');
+      expect(await Booking.findById(id).lean()).toEqual(before);
+    }
+  });
+  it('requires an existing campground and preserves rejected updates', async () => {
+    const id = await own();
+    const before = await Booking.findById(id).lean();
+    for (const campground of ['invalid', '123456789012', 'g'.repeat(24), new mongoose.Types.ObjectId().toString()]) {
+      const response = await update(id, { campgroundId: campground, checkIn: '2031-01-01' });
+      expect(response.status).toBe(campground.length === 24 && !campground.startsWith('g') ? 404 : 400);
+      expect(await Booking.findById(id).lean()).toEqual(before);
+    }
+  });
+  it('rejects empty, unexpected, ownership, authority, and invalid field inputs', async () => {
+    const id = await own();
+    const before = await Booking.findById(id).lean();
+    for (const body of [[], {}, { owner: otherId }, { ownerId: otherId }, { role: 'admin' }, { _id: otherId }, { unexpected: true }]) {
+      const response = await update(id, body);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe('Invalid booking fields');
+    }
+    for (const field of ['campgroundId', 'checkIn', 'checkOut']) {
+      for (const value of [null, false, 123, [], {}]) expect((await update(id, { [field]: value })).status).toBe(400);
+    }
+    expect((await request(app).put(`/api/v1/bookings/${id}`).auth(token, { type: 'bearer' })).status).toBe(400);
+    expect(await Booking.findById(id).lean()).toEqual(before);
+  });
+  it('checks ownership before update fields, also for administrators', async () => {
+    const id = await own();
+    const before = await Booking.findById(id).lean();
+    for (const role of ['user', 'admin']) {
+      await User.findByIdAndUpdate(otherId, { role });
+      for (const body of [{}, { checkOut: '2031-01-02' }]) {
+        const response = await update(id, body, otherToken);
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
+      }
+    }
+    await User.findByIdAndUpdate(otherId, { role: 'user' });
+    expect(await Booking.findById(id).lean()).toEqual(before);
+    await User.findByIdAndUpdate(ownerId, { role: 'admin' });
+    expect((await update(id, { checkOut: '2031-01-02' })).status).toBe(200);
+  });
+  it('requires authentication before identifiers or fields and preserves the booking', async () => {
+    const id = await own();
+    const before = await Booking.findById(id).lean();
+    for (const target of [id, 'invalid']) {
+      for (const header of ['', 'Bearer invalid', `Bearer ${jwt.sign({}, secret, { subject: ownerId, expiresIn: -1 })}`]) {
+        expect((await request(app).put(`/api/v1/bookings/${target}`).set('Authorization', header).send({})).status).toBe(401);
+      }
+    }
+    expect(await Booking.findById(id).lean()).toEqual(before);
+  });
+  it('returns 400 for malformed and 404 for absent booking identifiers', async () => {
+    const malformed = await update('invalid', {});
+    expect(malformed.status).toBe(400);
+    expect(malformed.body.message).toBe('Invalid booking identifier');
+    const missing = await update(new mongoose.Types.ObjectId().toString(), {});
+    expect(missing.status).toBe(404);
+    expect(missing.body.message).toBe('Booking not found');
+  });
+  it('rejects campground-only historical edits but permits rescheduling the complete stay', async () => {
+    const old = await Booking.create({ owner: ownerId, campground: campgroundId, checkIn: '2020-01-01', checkOut: '2020-01-02' });
+    const second = await Campground.create(destination);
+    const before = await Booking.findById(old.id).lean();
+    expect((await update(old.id, { campgroundId: second.id })).status).toBe(400);
+    expect((await update(old.id, { checkOut: '2031-01-01' })).status).toBe(400);
+    expect(await Booking.findById(old.id).lean()).toEqual(before);
+    const response = await update(old.id, { campgroundId: second.id, ...stay });
+    expect(response.status).toBe(200);
+    expect(response.body.data).toMatchObject({ ownerId, ...stay, campground: { id: second.id } });
+  });
+  it('revalidates an unchanged date when Bangkok today advances', async () => {
+    vi.setSystemTime(new Date('2030-12-30T16:59:59.999Z'));
+    const created = await create({ campgroundId, checkIn: '2030-12-30', checkOut: '2030-12-31' });
+    const id = created.body.data.id;
+    vi.setSystemTime(new Date('2030-12-30T17:00:00.000Z'));
+    expect((await update(id, { campgroundId })).status).toBe(400);
+    expect((await update(id, { checkOut: '2031-01-01' })).status).toBe(400);
+    expect((await update(id, stay)).status).toBe(200);
+  });
+});

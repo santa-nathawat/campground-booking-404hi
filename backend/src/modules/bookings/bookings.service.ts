@@ -3,7 +3,7 @@ import { HttpError } from '../../middleware/errors.js';
 import { publicCampground, type CampgroundFields } from '../campgrounds/campground.model.js';
 import { getCampground } from '../campgrounds/campgrounds.service.js';
 import { Booking } from './booking.model.js';
-import { validateStay, type BookingInput } from './bookings.validation.js';
+import { bookingUpdateInput, validateStay, type BookingInput } from './bookings.validation.js';
 
 type PopulatedCampground = { campground: (CampgroundFields & { _id: unknown }) | null };
 type PublicBookingSource = {
@@ -48,4 +48,21 @@ export async function listBookings(ownerId: string) {
 export async function getBooking(id: string, ownerId: string) {
   const booking = await ownedBooking(id, ownerId);
   return publicBooking(await booking.populate<PopulatedCampground>('campground'));
+}
+
+export async function updateBooking(id: string, ownerId: string, body: unknown) {
+  const booking = await ownedBooking(id, ownerId);
+  const input = bookingUpdateInput.safeParse(body);
+  if (!input.success) throw new HttpError(400, 'Invalid booking fields');
+  const checkIn = input.data.checkIn ?? booking.checkIn;
+  const checkOut = input.data.checkOut ?? booking.checkOut;
+  validateStay(checkIn, checkOut);
+  const campgroundId = input.data.campgroundId ?? String(booking.campground);
+  await getCampground(campgroundId);
+  // Write the entire validated stay together, including dates omitted by the caller.
+  const updated = await Booking.findOneAndUpdate({ _id: booking._id, owner: ownerId }, {
+    $set: { campground: campgroundId, checkIn, checkOut },
+  }, { returnDocument: 'after', runValidators: true }).populate<PopulatedCampground>('campground');
+  if (!updated) throw new HttpError(404, 'Booking not found');
+  return publicBooking(updated);
 }

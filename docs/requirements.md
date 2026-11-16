@@ -21,7 +21,7 @@
 - Login required for campgrounds and bookings.
 - Use check-in/check-out dates in the Thailand calendar (`Asia/Bangkok`).
 - Check-in today or later. Check-out 1–3 days later.
-- Apply date rules when creating bookings or changing dates.
+- Apply date rules when creating bookings or making any update, including campground-only edits. Historical bookings can be rescheduled with a complete valid current/future stay.
 - Owners and administrators may change the campground and dates. Booking ownership stays fixed.
 - Administrators may create their own bookings under the same rules.
 - No booking-count limit. Overlapping bookings are allowed. No capacity or pitch tracking.

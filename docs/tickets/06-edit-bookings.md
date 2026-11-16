@@ -11,5 +11,5 @@ Owners can change a booking's campground or dates while ownership stays fixed.
 - [ ] When either date changes, validate the complete resulting stay: check-in today or later and 1–3 nights.
 - [ ] Require an existing campground. Failed updates must preserve the original booking.
 - [ ] Deny unauthenticated and cross-user edits.
-- [ ] Clarify the proposed rule for campground-only edits of past bookings before implementing that edge case.
+- [ ] Validate the entire resulting stay on every edit; reject campground-only historical edits. A historical booking may be rescheduled to valid current/future dates.
 - [ ] Test allowed, denied, invalid, and partial updates through HTTP and Postman. Administrator editing comes in ticket 08.

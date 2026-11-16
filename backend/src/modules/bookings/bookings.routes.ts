@@ -8,5 +8,6 @@ export function createBookingsRouter(secret: string) {
   router.post('/', controller.create);
   router.get('/', controller.list);
   router.get('/:id', controller.detail);
+  router.put('/:id', controller.update);
   return router;
 }

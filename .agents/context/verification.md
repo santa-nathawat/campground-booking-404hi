@@ -14,7 +14,7 @@ Keep each module's tests beside its implementation as requested. Exercise observ
 | Campgrounds | Login required; name/address/telephone returned; administrator can POST; ordinary user denied; no private bookings embedded. |
 | Create booking | Owner derived from caller; existing campground; successful 1/2/3-night stays; today accepted in Bangkok; past, malformed, nonexistent, zero/negative and 4-night dates rejected. |
 | Listing/detail | User A sees only A's records; user B cannot read A's detail; administrator sees both; empty result has the agreed shape. |
-| Update | Owner/admin can change campground/dates; merged date range validated; owner remains fixed; date changes cannot move check-in into the past; an unchanged old date does not block a campground-only edit. |
+| Update | Owner/admin can change campground/dates; merged date range validated; owner remains fixed; date changes cannot move check-in into the past; campground-only historical edits fail unless rescheduled to a valid current/future stay (user decision during tickets 04–07). |
 | Delete | Owner/admin succeeds; other user denied; record removed; missing ID follows agreed error contract. |
 | Administrator booking | Administrator can create own booking, with the same duration/date limits and no client-chosen owner. |
 | Overlap/count | Two users may book the same campground/dates; one user may create more than three valid bookings. No inherited three-appointment limit survives. |

@@ -44,7 +44,7 @@ Example booking:
 ```
 
 Dates use `YYYY-MM-DD`; examples are not fixed test dates.
-PUT accepts partial updates and validates the merged booking. Reject unexpected fields and ownership changes.
+PUT accepts partial updates and validates the complete merged stay on every update, including campground-only edits. Reject unexpected fields and ownership changes.
 
 Authentication validation: required nonempty string contact fields; telephone stored as a string; trimmed/lowercase unique email with valid email shape; password at least 8 characters and at most 72 UTF-8 bytes. Reject unknown fields, including role. Registration always creates a `user`.
 Hash passwords with salted bcrypt at cost 10. Never trim passwords. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Authentication uses one-hour HS256 Bearer JWTs with account ID in `sub`; middleware loads the current stored account. No cookies are issued or accepted.
@@ -81,3 +81,7 @@ POST `/bookings` accepts exactly `campgroundId`, `checkIn`, and `checkOut`. Stor
 ## Adopted booking reads (ticket 05)
 
 GET `/bookings` returns only the caller's records ordered by ID ascending, with returned-item `count`. GET `/bookings/:id` returns one owned booking using the creation representation. Historical bookings remain readable. Malformed booking IDs return 400 (`Invalid booking identifier`), absent records 404 (`Booking not found`), and another owner's booking 403 (`Booking access denied`). Authentication precedes ID validation. Administrators are also own-only until ticket 08 implements the broader access described in the endpoint table.
+
+## Adopted booking updates (ticket 06)
+
+PUT `/bookings/:id` accepts a nonempty subset of `campgroundId`, `checkIn`, and `checkOut`. Check ownership before validating the body; reject unknown/ownership/authority fields with 400 (`Invalid booking fields`). Validate the complete merged stay on every edit, including campground-only edits: past dates fail with 400 (`Invalid booking dates`). Owners may reschedule a historical booking to valid current/future dates. Verify the destination exists, preserve the owner, and write the validated campground/date tuple together. Rejected updates preserve the stored booking. Success returns 200 with the public booking in `data`; administrators remain own-only until ticket 08.

@@ -66,7 +66,7 @@ Return only `{ id, name, address, telephone }`, with string telephone values and
 
 | Status | Meaning |
 | --- | --- |
-| 400 | Missing/invalid fields, malformed IDs, invalid calendar dates, past changed check-in, invalid duration, empty update, unexpected fields |
+| 400 | Missing/invalid fields, malformed IDs, invalid calendar dates, past resulting check-in on any create/update, invalid duration, empty update, unexpected fields |
 | 401 | Invalid credentials; missing, invalid, or expired JWT; token identifies no current account |
 | 403 | Authenticated caller lacks administrator access or does not own the booking |
 | 404 | Validly formed resource identifier has no corresponding resource |

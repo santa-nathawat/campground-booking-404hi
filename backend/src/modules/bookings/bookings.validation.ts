@@ -6,6 +6,7 @@ export const bookingInput = z.strictObject({
   checkIn: z.string(),
   checkOut: z.string(),
 });
+export const bookingUpdateInput = bookingInput.partial().refine(input => Object.keys(input).length > 0);
 export type BookingInput = z.infer<typeof bookingInput>;
 
 // UTC is only an arithmetic coordinate for calendar dates, not the stay's timezone.

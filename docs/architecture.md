@@ -57,5 +57,5 @@ Keep each model in its owning module. Keep tests beside the code.
 - Keep passwords, tokens, and Atlas credentials out of Git.
 - Never carry over Assignment 7's fallback administrator or signing secret.
 
-Date-only storage as `YYYY-MM-DD` is proposed. Count calendar nights, not elapsed local-time hours.
-Past bookings remain viewable/deletable. A campground-only edit preserves unchanged past dates; changing dates revalidates both.
+Booking dates are stored as validated `YYYY-MM-DD` strings. Count calendar nights, not elapsed local-time hours.
+Past bookings remain viewable/deletable. Every update validates the complete resulting stay, including campground-only edits. Historical bookings must be rescheduled to valid current/future dates before an edit can succeed.
