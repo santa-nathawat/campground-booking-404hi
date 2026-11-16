@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { User } from './modules/auth/user.model.js';
 import mongoose from 'mongoose';
 import { createApp } from './app.js';
 import { connectDatabase } from './config/database.js';
@@ -7,7 +8,8 @@ import { loadConfig } from './config/env.js';
 async function start() {
   const config = loadConfig();
   await connectDatabase(config.MONGO_URI);
-  const server = createApp().listen(config.PORT, () => {
+  await User.init();
+  const server = createApp(config).listen(config.PORT, () => {
     console.log(`API listening on port ${config.PORT}`);
   });
   server.on('error', () => {
