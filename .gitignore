@@ -1,0 +1,36 @@
+# Dependencies and package caches
+node_modules/
+.npm/
+.pnpm-store/
+
+# Generated builds and TypeScript cache
+dist/
+build/
+*.tsbuildinfo
+
+# Test coverage and generated Newman reports
+coverage/
+.nyc_output/
+newman/
+
+# Local environment and secrets; keep sanitized templates
+.env
+.env.*
+*.env
+*.env.*
+!*.env.example
+!*.env.sample
+!*.env.template
+
+# Logs and caches
+*.log
+logs/
+.cache/
+
+# OS and editor temporary files
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+*~
