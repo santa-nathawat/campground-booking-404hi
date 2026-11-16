@@ -8,7 +8,7 @@ import { createApp } from '../../app.js';
 import { User } from './user.model.js';
 
 const secret = 'isolated-test-signing-secret-32-bytes-minimum';
-const app = createApp({ JWT_SECRET: secret });
+const app = createApp({ JWT_SECRET: secret, NODE_ENV: 'test' });
 const visitor = { name: 'Example User', telephone: '0812345678', email: 'user@example.test', password: ' safe password ' };
 let database: MongoMemoryServer;
 const register = (body: object = visitor) => request(app).post('/api/v1/auth/register').send(body);
@@ -35,7 +35,7 @@ describe('registration', () => {
     expect(payload).toMatchObject({ sub: response.body.data.id, iat: expect.any(Number), exp: expect.any(Number) });
     if (typeof payload === 'string') throw new Error('Expected object claims');
     expect(payload.exp! - payload.iat!).toBe(3600);
-    expect(response.headers['set-cookie']).toBeUndefined();
+    expect(response.headers['set-cookie'][0]).toContain(`token=${response.body.token};`);
     expect((await me(response.body.token)).status).toBe(200);
     expect((await User.findById(response.body.data.id))?.passwordHash).toBeUndefined();
   });
@@ -119,7 +119,7 @@ describe('login', () => {
 });
 
 describe('current user', () => {
-  it('requires a Bearer token', async () => {
+  it('rejects missing credentials or malformed authorization', async () => {
     for (const authorization of ['', 'Basic abc', 'Bearer', 'Bearer abc def']) {
       const response = await request(app).get('/api/v1/auth/me').set('Authorization', authorization);
       expect(response.status).toBe(401);
@@ -183,4 +183,81 @@ it('returns JSON errors for malformed JSON, non-object bodies, and unknown route
   const missing = await request(app).get('/missing');
   expect(missing.status).toBe(404);
   expect(missing.body).toEqual({ success: false, message: 'Route not found' });
+});
+
+
+describe('cookie authentication', () => {
+  it('stores the registration cookie in a client jar and authenticates without a Bearer header', async () => {
+    const client = request.agent(app);
+    const registered = await client.post('/api/v1/auth/register').send(visitor);
+    expect(registered.status).toBe(201);
+    const response = await client.get('/api/v1/auth/me');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toEqual(registered.body.data);
+    expect(response.headers['set-cookie']).toBeUndefined();
+  });
+
+  it('issues the login cookie with the JSON token and one-hour lifetime', async () => {
+    await register();
+    const response = await login({ email: visitor.email, password: visitor.password });
+    const cookie = response.headers['set-cookie'][0];
+    expect(cookie).toContain(`token=${response.body.token};`);
+    expect(cookie).toContain('Max-Age=3600');
+    expect(cookie).toContain('Path=/');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('SameSite=Lax');
+    expect(cookie).not.toContain('Domain=');
+    expect(cookie).not.toContain('Secure');
+    const payload = jwt.decode(response.body.token);
+    if (!payload || typeof payload === 'string') throw new Error('Expected token claims');
+    const expires = /Expires=([^;]+)/.exec(cookie);
+    expect(expires).not.toBeNull();
+    expect(Math.abs(Date.parse(expires![1]) - payload.exp! * 1000)).toBeLessThanOrEqual(1000);
+    expect((await request(app).get('/api/v1/auth/me').set('Cookie', cookie.split(';')[0])).status).toBe(200);
+  });
+
+  it.each(['development', 'production'] as const)('sets the expected cookie flags in %s', async environment => {
+    const configured = createApp({ JWT_SECRET: secret, NODE_ENV: environment });
+    const response = await request(configured).post('/api/v1/auth/register').send(visitor);
+    const cookie = response.headers['set-cookie'][0];
+    expect(cookie.includes('; Secure')).toBe(environment === 'production');
+    expect(cookie).toContain('HttpOnly');
+    expect(cookie).toContain('SameSite=Lax');
+    expect(cookie).not.toContain('Domain=');
+  });
+
+  it('does not issue cookies for failed registration or login', async () => {
+    const invalid = await register({ ...visitor, role: 'admin' });
+    expect(invalid.status).toBe(400);
+    expect(invalid.headers['set-cookie']).toBeUndefined();
+    await register();
+    const duplicate = await register();
+    expect(duplicate.status).toBe(409);
+    expect(duplicate.headers['set-cookie']).toBeUndefined();
+    const failed = await login({ email: visitor.email, password: 'wrong-password' });
+    expect(failed.status).toBe(401);
+    expect(failed.headers['set-cookie']).toBeUndefined();
+  });
+
+  it('rejects expired, tampered, malformed and deleted-account cookies', async () => {
+    const response = await register();
+    const expired = jwt.sign({}, secret, { subject: response.body.data.id, expiresIn: -1 });
+    for (const token of [expired, response.body.token + 'tampered', 'j:{"sub":"injected"}']) {
+      expect((await request(app).get('/api/v1/auth/me').set('Cookie', `token=${encodeURIComponent(token)}`)).status).toBe(401);
+    }
+    await User.deleteMany({});
+    expect((await request(app).get('/api/v1/auth/me').set('Cookie', `token=${response.body.token}`)).status).toBe(401);
+  });
+
+  it('uses an explicit Bearer header ahead of a cookie and never falls back from invalid headers', async () => {
+    const first = await register();
+    const second = await register({ ...visitor, email: 'second@example.test' });
+    const cookie = `token=${first.body.token}`;
+    const response = await me(second.body.token).set('Cookie', cookie);
+    expect(response.body.data.id).toBe(second.body.data.id);
+    expect((await me(second.body.token).set('Cookie', 'token=invalid')).status).toBe(200);
+    for (const authorization of ['', 'Basic abc', 'Bearer invalid', 'Bearer abc def']) {
+      expect((await request(app).get('/api/v1/auth/me').set('Cookie', cookie).set('Authorization', authorization)).status).toBe(401);
+    }
+  });
 });
