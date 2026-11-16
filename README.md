@@ -4,7 +4,7 @@ Topic 2 project for 2110503 Software Development Practice.
 
 Build a REST API for campground stays of 1–3 nights. Test with Postman. No frontend required.
 
-**Status:** Ticket 01 authentication is implemented and locally verified. Campgrounds, bookings, administrator setup, logout, diagrams, and presentation remain pending.
+**Status:** Tickets 01–02 authentication, campground browsing, and repeatable seeding are implemented and locally verified. Bookings, administrator setup/creation, logout, diagrams, and presentation remain pending.
 
 ## Run the API
 
@@ -26,7 +26,19 @@ npm run build
 npm start
 ```
 
-Implemented endpoints: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, and `GET /api/v1/auth/me`. Send `Authorization: Bearer <token>` for `/me`. Tokens expire after one hour.
+Implemented endpoints: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `GET /api/v1/campgrounds`, and `GET /api/v1/campgrounds/:id`. Send `Authorization: Bearer <token>` for protected reads. Tokens expire after one hour.
+
+## Seed demo campgrounds
+
+From `backend/`, with `MONGO_URI` configured in `.env` or the environment:
+
+```sh
+npm run seed:campgrounds
+```
+
+Adds three fictional demo destinations with sample contact details. Fixed IDs identify fixtures; repeated runs insert only missing IDs and preserve edited fixtures, unrelated campgrounds, and all bookings. This command requires only `MONGO_URI`, reports inserted/existing counts, and exits nonzero on failure. It does not reset the database. Names are not unique identities.
+
+The API returns campground `id`, `name`, `address`, and string `telephone` only. Lists include `count` and an array in `data`, ordered by ID. Malformed IDs return 400; absent valid IDs return 404; missing/invalid credentials return 401 before ID validation.
 
 ## Check the API
 
@@ -46,14 +58,18 @@ Import the collection and environment in [postman](postman/README.md), or run fr
 postman collection run postman/auth.postman_collection.json -e postman/local.postman_environment.json --no-report-events
 ```
 
-Use a designated test database: each collection run creates one ordinary user and preserves existing accounts.
+Use a designated test database: each collection run creates one ordinary user and preserves existing accounts. After seeding, run the browse collection using the same environment:
+
+```sh
+postman collection run postman/campgrounds.postman_collection.json -e postman/local.postman_environment.json --no-report-events
+```
 
 ## Read first
 
 - [Tickets 01–09](docs/tickets/README.md): implementation checklist and work order.
 - [Requirements](docs/requirements.md): what to build and submit.
 - [Architecture](docs/architecture.md): stack and folder structure.
-- [API](docs/api-contract.md): implemented authentication and proposed remaining endpoints.
+- [API](docs/api-contract.md): implemented authentication/campground reads and proposed remaining endpoints.
 - [Verification](docs/verification.md): what must pass.
 - [ADRs](docs/adr/README.md): why we chose each technology.
 - [Glossary](GLOSSARY.md): project terms.

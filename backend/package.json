@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seed:campgrounds": "tsx src/scripts/seed-campgrounds.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

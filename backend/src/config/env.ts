@@ -1,10 +1,19 @@
 import { z } from 'zod';
 
-const environment = z.object({
+const databaseEnvironment = z.object({
   MONGO_URI: z.string().regex(/^mongodb(?:\+srv)?:\/\/\S+$/),
+});
+
+const environment = databaseEnvironment.extend({
   JWT_SECRET: z.string().refine(value => Buffer.byteLength(value) >= 32),
   PORT: z.coerce.number().int().min(1).max(65535).default(5000),
 });
+
+export function loadDatabaseConfig(env: NodeJS.ProcessEnv = process.env) {
+  const result = databaseEnvironment.safeParse(env);
+  if (!result.success) throw new Error('Invalid configuration: MONGO_URI');
+  return result.data;
+}
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
   const result = environment.safeParse(env);

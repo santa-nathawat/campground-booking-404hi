@@ -1,6 +1,6 @@
 # API
 
-**Status:** registration, login, and current user are implemented. Other endpoints remain proposed and unimplemented.
+**Status:** registration, login, current user, and campground list/detail are implemented. Other endpoints remain proposed and unimplemented.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -48,6 +48,8 @@ PUT accepts partial updates and validates the merged booking. Reject unexpected 
 
 Authentication validation: required nonempty string contact fields; telephone stored as a string; trimmed/lowercase unique email with valid email shape; password at least 8 characters and at most 72 UTF-8 bytes. Reject unknown fields, including role. Registration always creates a `user`.
 Hash passwords with salted bcrypt at cost 10. Never trim passwords. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Authentication uses one-hour HS256 Bearer JWTs with account ID in `sub`; middleware loads the current stored account. No cookies are issued or accepted.
+
+Campground reads return only `id`, `name`, `address`, and string `telephone`. Lists are ordered by `_id` ascending and include all destinations; an empty list returns `count: 0` and `data: []`. Authentication runs before ID validation. Detail accepts 24-character hexadecimal MongoDB IDs; malformed IDs return 400 (`Invalid campground identifier`) and absent valid IDs return 404 (`Campground not found`).
 
 ## Responses
 

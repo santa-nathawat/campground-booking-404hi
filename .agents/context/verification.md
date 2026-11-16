@@ -1,6 +1,6 @@
 # Verification plan and implementation sequence
 
-Status: Ticket 01 local checks passed; see [authentication evidence](auth-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
+Status: Tickets 01–02 local checks passed; see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
 
 ## Meaningful test coverage
 
@@ -45,7 +45,7 @@ Record each HTTP request's response time and assert at most 3000 ms, including r
 5. Assemble and run the Postman/Newman suite, inspect confidentiality, and collect performance evidence under recorded conditions.
 6. Update the actual baseline change map, author/render the required diagrams from implemented behavior, and prepare presentation/demo evidence.
 
-Ticket 01 completes the server foundation and registration/login/current user. Administrator provisioning and the remaining features stay assigned to their approved tickets.
+Ticket 01 completes the server foundation and registration/login/current user. Ticket 02 completes campground list/detail and non-destructive demo seeding. Administrator provisioning and the remaining features stay assigned to their approved tickets.
 
 ## Completion evidence
 
