@@ -3,7 +3,7 @@ import { registration, credentials } from './auth.validation.js';
 import { HttpError } from '../../middleware/errors.js';
 import * as auth from './auth.service.js';
 
-export function createAuthController(secret: string): Record<'register' | 'login' | 'me', RequestHandler> {
+export function createAuthController(secret: string): Record<'register' | 'login' | 'me' | 'logout', RequestHandler> {
   return {
     register: async (req, res) => {
       const input = registration.safeParse(req.body);
@@ -19,6 +19,9 @@ export function createAuthController(secret: string): Record<'register' | 'login
     },
     me: (_req, res) => {
       res.json({ success: true, data: res.locals.user });
+    },
+    logout: (_req, res) => {
+      res.json({ success: true, data: {} });
     },
   };
 }

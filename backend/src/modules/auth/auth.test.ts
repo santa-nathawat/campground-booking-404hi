@@ -98,6 +98,7 @@ describe('login', () => {
     expect((await me(response.body.token)).body.data).toEqual(registered.body.data);
     expect(response.body).not.toHaveProperty('password');
     expect(response.body.data).not.toHaveProperty('passwordHash');
+    expect(response.headers['set-cookie']).toBeUndefined();
   });
 
   it.each([
@@ -173,6 +174,61 @@ describe('current user', () => {
       mongoose.set('bufferCommands', true);
     }
   }, 15_000);
+});
+
+describe('logout', () => {
+  it('lets a client discard its credential while a copied JWT remains valid', async () => {
+    const registered = await register();
+    const loggedIn = await login({ email: visitor.email, password: visitor.password });
+    expect(loggedIn.status).toBe(200);
+    let clientToken: string = loggedIn.body.token;
+    const copiedToken = clientToken;
+    expect((await me(clientToken)).status).toBe(200);
+
+    const response = await request(app).get('/api/v1/auth/logout').auth(clientToken, { type: 'bearer' });
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ success: true, data: {} });
+    expect(response.headers['set-cookie']).toBeUndefined();
+    clientToken = '';
+    expect((await me(clientToken)).status).toBe(401);
+    expect((await request(app).get('/api/v1/auth/me')).status).toBe(401);
+    const copiedResponse = await me(copiedToken);
+    expect(copiedResponse.status).toBe(200);
+    expect(copiedResponse.body.data).toEqual(registered.body.data);
+    expect((await User.findById(registered.body.data.id))?.email).toBe(visitor.email);
+    expect((await login({ email: visitor.email, password: visitor.password })).status).toBe(200);
+  });
+
+  it.each(['', 'Basic abc', 'Bearer', 'Bearer abc def', 'Bearer invalid-token'])(
+    'rejects missing or malformed authentication: %j', async authorization => {
+      const response = await request(app).get('/api/v1/auth/logout').set('Authorization', authorization);
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+    },
+  );
+
+  it('rejects expired, tampered, and wrong-signature JWTs', async () => {
+    const registered = await register();
+    const sub = registered.body.data.id;
+    const tokens = [
+      jwt.sign({}, secret, { subject: sub, expiresIn: -1 }),
+      `${registered.body.token}tampered`,
+      jwt.sign({}, 'another-signing-secret', { subject: sub, expiresIn: '1h' }),
+    ];
+    for (const token of tokens) {
+      const response = await request(app).get('/api/v1/auth/logout').auth(token, { type: 'bearer' });
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+    }
+  });
+
+  it('does not accept a valid JWT in cookies', async () => {
+    const registered = await register();
+    const response = await request(app).get('/api/v1/auth/logout').set('Cookie', `token=${registered.body.token}`);
+    expect(response.status).toBe(401);
+    expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+    expect(response.headers['set-cookie']).toBeUndefined();
+  });
 });
 
 it('returns JSON errors for malformed JSON, non-object bodies, and unknown routes', async () => {

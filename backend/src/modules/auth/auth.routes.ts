@@ -8,5 +8,6 @@ export function createAuthRouter(secret: string) {
   router.post('/register', controller.register);
   router.post('/login', controller.login);
   router.get('/me', protect(secret), controller.me);
+  router.get('/logout', protect(secret), controller.logout);
   return router;
 }
