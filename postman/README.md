@@ -4,7 +4,9 @@ Import `auth.postman_collection.json` and `local.postman_environment.json` into 
 
 Registration generates a fresh email/password for each run. Optionally set `TEST_EMAIL` and `TEST_PASSWORD` locally; a reused email will conflict on subsequent runs. Credentials and token values are empty in the committed files. Login and registration save `TOKEN` at runtime for the current-user request.
 
-Nine requests cover successful registration/login/current user, duplicate email, required telephone, forbidden role input, incorrect password, and missing/invalid tokens. Automated HTTP tests cover expiry and additional edge cases.
+Thirteen requests/41 assertions cover successful registration/login/current user, duplicate email, required telephone, forbidden role input, incorrect password, missing/invalid tokens, and logout. The logout flow saves a demonstration copy in run-local `COPIED_TOKEN`, calls authenticated GET `/api/v1/auth/logout`, and clears collection `TOKEN` only after success. The next protected request using the cleared token returns 401, while the copied token still returns the same account. The copy is removed after that check and is never saved in the collection or environment. Logout without credentials returns 401.
+
+JWTs expire one hour after issuance. Logout does not revoke them: clients must discard their credentials. No authentication cookies are issued or accepted; registration, login, and logout are checked for absence of `Set-Cookie`. Automated HTTP tests cover expiry, cookie-only rejection, and additional edge cases.
 
 Use a designated test database. Runs create one ordinary user and do not remove existing data. Clear generated credentials and tokens before exporting; never commit a populated environment or collection.
 

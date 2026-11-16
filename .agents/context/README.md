@@ -4,6 +4,8 @@ Detailed notes for agents. Human docs stay in `docs/`; the root README is the hu
 
 ## Read by task
 
+- Logout contract, client-token clearing, copied-JWT demonstration, and local verification: [ticket 09 evidence](logout-implementation.md).
+
 - Booking CRUD conventions, historical-edit decision, and local verification: [tickets 04–07 evidence](bookings-implementation.md).
 
 - Authentication implementation, baseline mapping, and local verification: [ticket 01 evidence](auth-implementation.md).

@@ -1,6 +1,6 @@
 # Verification
 
-**Status:** Tickets 01–08 pass 163 automated tests and five local Postman collections (117 requests/344 assertions total, including administrator bookings: 58/174), with zero failures. Type checking and build pass. Logout (09), Atlas, and full-project timing checks remain pending. See [ticket 08 evidence](../.agents/context/admin-bookings-implementation.md).
+**Status:** Tickets 01–09 pass 171 automated tests; type checking and build pass. The updated authentication/logout Postman collection passes 13 requests/41 assertions with zero failures. See [ticket 09 evidence](../.agents/context/logout-implementation.md) and [prior collection evidence](../.agents/context/admin-bookings-implementation.md). Atlas and full-project timing checks remain pending.
 
 Run `npm run typecheck`, `npm run build`, and `npm test` from `backend/`. See the [Postman instructions](../postman/README.md) for HTTP requests.
 

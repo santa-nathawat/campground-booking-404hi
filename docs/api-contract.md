@@ -1,6 +1,6 @@
 # API
 
-**Status:** registration, login, current user, campgrounds, and owner/administrator booking CRUD are implemented. Logout (09) remains unimplemented.
+**Status:** registration, login, current user, logout, campgrounds, and owner/administrator booking CRUD are implemented through ticket 09.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -71,8 +71,9 @@ Campground creation requires the current stored administrator role. Accept exact
 | Email already registered | 409 |
 | Unexpected server failure | 500 |
 
-Logout (ticket 09, not implemented) clears any issued auth cookie. Postman clears its saved TOKEN after success.
-A copied unexpired JWT remains usable. Ticket 01 uses Bearer JWT transport only.
+GET `/auth/logout` requires a valid Bearer JWT and returns 200 with `{ "success": true, "data": {} }`. Missing, invalid, or expired authentication returns 401 (`Not authorized`). Postman clears its saved `TOKEN` after success; subsequent requests without credentials return 401.
+
+JWTs expire one hour after issuance. Logout does not revoke tokens or change the account; a separately copied unexpired JWT can still authenticate while the account exists. No authentication cookies are issued or accepted, so logout sends no `Set-Cookie` header. No server-side session or revocation list is used.
 
 ## Adopted booking creation (ticket 04)
 

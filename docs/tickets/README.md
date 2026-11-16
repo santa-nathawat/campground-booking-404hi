@@ -1,6 +1,6 @@
 # Implementation tickets
 
-Approved plan. Tickets 01–08 are implemented and locally verified; ticket 09 is not started. No external issues have been published.
+Approved plan. Tickets 01–09 are implemented and locally verified. No external issues have been published.
 
 Each ticket includes its code, meaningful tests, and Postman examples. Test HTTP behavior against an isolated MongoDB database. Test setup commands directly.
 

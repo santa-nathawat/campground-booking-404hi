@@ -4,7 +4,7 @@ Topic 2 project for 2110503 Software Development Practice.
 
 Build a REST API for campground stays of 1–3 nights. Test with Postman. No frontend required.
 
-**Status:** Tickets 01–08 authentication, campgrounds, administrator setup, and owner/administrator booking CRUD are implemented and locally verified. Logout (09), diagrams, and presentation remain pending.
+**Status:** Tickets 01–09 authentication, logout, campgrounds, administrator setup, and owner/administrator booking CRUD are implemented and locally verified. Full-project Atlas/timing verification, diagrams, and presentation remain pending.
 
 ## Run the API
 
@@ -26,7 +26,7 @@ npm run build
 npm start
 ```
 
-Implemented endpoints: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `GET /api/v1/campgrounds`, `GET /api/v1/campgrounds/:id`, and administrator-only `POST /api/v1/campgrounds`. Booking CRUD is also implemented at `/api/v1/bookings` (POST/GET) and `/api/v1/bookings/:id` (GET/PUT/DELETE). Send `Authorization: Bearer <token>` for protected requests. Tokens expire after one hour.
+Implemented endpoints: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`, `GET /api/v1/auth/me`, `GET /api/v1/auth/logout`, `GET /api/v1/campgrounds`, `GET /api/v1/campgrounds/:id`, and administrator-only `POST /api/v1/campgrounds`. Booking CRUD is also implemented at `/api/v1/bookings` (POST/GET) and `/api/v1/bookings/:id` (GET/PUT/DELETE). Send `Authorization: Bearer <token>` for protected requests. Tokens expire after one hour. Logout returns an empty success response; clients must discard their saved token. A copied unexpired JWT remains valid. No authentication cookies are issued or accepted.
 
 ## Seed demo campgrounds
 
@@ -91,7 +91,7 @@ postman collection run postman/campgrounds.postman_collection.json -e postman/lo
 - [Tickets 01–09](docs/tickets/README.md): implementation checklist and work order.
 - [Requirements](docs/requirements.md): what to build and submit.
 - [Architecture](docs/architecture.md): stack and folder structure.
-- [API](docs/api-contract.md): implemented authentication, campgrounds, and owner/administrator bookings; pending logout.
+- [API](docs/api-contract.md): implemented authentication/logout, campgrounds, and owner/administrator bookings.
 - [Verification](docs/verification.md): what must pass.
 - [ADRs](docs/adr/README.md): why we chose each technology.
 - [Glossary](GLOSSARY.md): project terms.

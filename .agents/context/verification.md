@@ -1,6 +1,6 @@
 # Verification plan and implementation sequence
 
-Status: Tickets 01–08 local checks passed; see [administrator booking evidence](admin-bookings-implementation.md); see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
+Status: Tickets 01–09 local checks passed; see [logout evidence](logout-implementation.md); see [administrator booking evidence](admin-bookings-implementation.md); see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
 
 ## Meaningful test coverage
 
@@ -10,7 +10,7 @@ Keep each module's tests beside its implementation as requested. Exercise observ
 | --- | --- |
 | Registration | Required name/telephone/email/password; duplicate normalized email; hashed stored password; password excluded from responses; supplied role cannot grant admin. |
 | Login/protection | Correct and incorrect credentials; missing/expired/invalid token; nonexistent current user; no fallback secret or fallback administrator. |
-| Logout | Clear client token and issued cookie; no-credential request fails; copied unexpired token limitation accurately demonstrated/documented. |
+| Logout | Clear client token after success; no cookies issued or accepted; no-credential request fails; copied unexpired token remains usable until its one-hour expiry. |
 | Campgrounds | Login required; name/address/telephone returned; administrator can POST; ordinary user denied; no private bookings embedded. |
 | Create booking | Owner derived from caller; existing campground; successful 1/2/3-night stays; today accepted in Bangkok; past, malformed, nonexistent, zero/negative and 4-night dates rejected. |
 | Listing/detail | User A sees only A's records; user B cannot read A's detail; administrator sees both; empty result has the agreed shape. |
