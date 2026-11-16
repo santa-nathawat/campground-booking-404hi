@@ -40,7 +40,7 @@ Ten requests cover unauthenticated denial, rejected public role escalation, ordi
 
 ## Bookings (tickets 04–07)
 
-Seed demo campgrounds, then run `bookings.postman_collection.json` with the local environment against a designated test database. The collection generates two accounts, separate tokens, and future Bangkok calendar dates; committed runtime variables remain empty. Run requests in order. Creation covers persistence through the returned representation, invalid duration, and client-supplied ownership rejection. Later booking tickets extend this collection with reads, updates, and cleanup.
+Seed demo campgrounds, then run `bookings.postman_collection.json` with the local environment against a designated test database. The collection generates two accounts, separate tokens, and future Bangkok calendar dates; committed runtime variables remain empty. Run requests in order. The 29 requests/75 assertions cover creation, invalid duration/ownership input, both own-only lists, detail, cross-user read/update/delete denials, merged updates, persisted read-back, deletion, and empty lists. Cleanup removes only the two bookings created by the run; generated accounts remain until the disposable database is removed.
 
 ```sh
 postman collection run postman/bookings.postman_collection.json -e postman/local.postman_environment.json --no-report-events

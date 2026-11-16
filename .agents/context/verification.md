@@ -1,6 +1,6 @@
 # Verification plan and implementation sequence
 
-Status: Tickets 01–02 local checks passed; see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
+Status: Tickets 01–07 local checks passed; see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). The full-project procedures below remain planned; no Atlas or performance requirement evidence is claimed.
 
 ## Meaningful test coverage
 

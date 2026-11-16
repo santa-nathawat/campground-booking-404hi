@@ -1,6 +1,6 @@
 # Architecture
 
-Status: Tickets 01–03 authentication, campground reads/creation, seeding, administrator provisioning, and shared server foundation are implemented; bookings are planned. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/campground/shared files, a campground seed script, an administrator setup script, and planned booking files.
+Status: Tickets 01–07 authentication, campgrounds, shared infrastructure, and owned booking CRUD are implemented. Administrator access to others’ bookings remains ticket 08. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The layout below includes implemented auth/campground/shared files, a campground seed script, an administrator setup script, and implemented booking files.
 
 ## Backend organization
 
@@ -50,13 +50,13 @@ The request flow extends the lecture example: HTTP -> middleware -> route/contro
 
 ## Data responsibilities
 
-Field names below are proposed conventions, not source requirements. Date-only storage is also proposed to make calendar-night semantics explicit.
+Field names and date-only storage below are adopted implementation conventions, not source requirements.
 
 | Model owner | Principal data | Invariants |
 | --- | --- | --- |
 | `auth` / User | ID, name, telephone, email, password hash, role | Required registration fields; unique email; only `user` and `admin` roles; password hash excluded from API representations. |
 | `campgrounds` / Campground | ID, name, address, telephone | All three descriptive fields required; return campground data without private booking lists. |
-| `bookings` / Booking | ID, owner reference, campground reference, check-in, check-out | Existing user and campground; fixed owner; 1-3 nights; date changes satisfy the Thailand-calendar rule. |
+| `bookings` / Booking | ID, owner reference, campground reference, check-in, check-out | Existing user and campground; fixed owner; 1-3 nights; creation and every update satisfy the Thailand-calendar rule. |
 
 Store check-in and check-out as validated `YYYY-MM-DD` date-only strings. Calculate nights as the difference between calendar dates, not local-time hour arithmetic. Determine today's date using `Asia/Bangkok`. Reject nonexistent dates, timestamp inputs, and impossible ranges. The API contract provides examples.
 
@@ -64,7 +64,7 @@ There is no pitch, capacity, payment, or cancellation-status entity. Delete mean
 
 ## Authorization boundary
 
-The authenticated user determines ownership on creation. Neither a user nor an administrator supplies another owner when making a booking. List queries scope ordinary users to their own records. Single-record reads and writes verify owner-or-administrator access. Updating a booking cannot change its owner.
+The authenticated user determines ownership on creation. Neither a user nor an administrator supplies another owner when making a booking. List queries scope all callers, including administrators, to their own records. Single-record reads and writes verify ownership. Administrator access to others remains ticket 08. Updating a booking cannot change its owner.
 
 JWT verification establishes the claimed identity; load the current user to ensure the account still exists and use its current role for authorization. Never trust an incoming registration role or a body-supplied booking owner. No fallback administrator or fallback signing secret is carried over from Assignment 7.
 

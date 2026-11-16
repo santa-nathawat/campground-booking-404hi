@@ -1,6 +1,6 @@
 # API contract
 
-Status: Tickets 01–03 adopt authentication and campground read/create contracts; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, current-user, and campground list/detail/create endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
+Status: Tickets 01–07 adopt authentication, campgrounds, and owned booking CRUD. See [booking conventions and evidence](bookings-implementation.md). Administrator access to others (08) and logout (09) remain proposed. Business behavior is agreed in [requirements](requirements.md); implemented contracts follow the adopted conventions below; remaining logout/administrator-booking details are recommendations. Registration, login, current-user, campground list/detail/create, and owned booking CRUD endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
 
 ## Conventions
 
@@ -27,7 +27,7 @@ All paths below are relative to `/api/v1`.
 | PUT | `/bookings/:id` | Owner or administrator | 200 + updated booking | FR-05, FR-08 |
 | DELETE | `/bookings/:id` | Owner or administrator | 200 + empty object in `data` | FR-06, FR-09 |
 
-Use partial field updates for the proposed booking PUT, matching the baseline's update style. Validate the merged complete booking. No nested campground booking list is planned, avoiding a second path that could leak other users' bookings.
+Use partial field updates for the implemented booking PUT, matching the baseline's update style. Validate the complete merged stay on every update, including campground-only edits. Booking rows describing access to others by administrators remain ticket 08; all current booking access is own-only. No nested campground booking list is planned, avoiding a second path that could leak other users' bookings.
 
 ## Request representations
 
@@ -73,10 +73,12 @@ Return only `{ id, name, address, telephone }`, with string telephone values and
 | 409 | Registration conflicts with an existing normalized email |
 | 500 | Unexpected internal failure; do not return credentials, database internals, or stack traces |
 
-Authentication/role middleware runs before protected resource operations. For booking ownership, load the booking and then enforce owner-or-admin before returning data or making any change.
+Authentication/role middleware runs before protected resource operations. For booking ownership, load the booking and then enforce owner-only access before returning data or making any change. Administrator access to others remains ticket 08.
 
 ## Logout limits
 
 Propose retaining the lecture's GET logout path and token response style for easy comparison. The Postman logout request clears its saved TOKEN after a successful response; the server clears an authentication cookie if one was issued. A subsequent request without credentials returns 401. A separately copied unexpired JWT may still authenticate, as explicitly accepted in ADR-0007. Do not describe client token deletion as server-side revocation. Ticket 01 issues and accepts no cookies; authentication uses Bearer JWTs. Logout remains ticket 09.
 
 Ticket 03 implements administrator campground POST with strict trimmed nonempty string fields, current stored role enforcement, and the existing public serializer. See [administrator conventions and evidence](admin-campgrounds-implementation.md).
+
+Booking creation, public response fields, read/update/delete conventions, finalized date representation, and local verification are recorded in [booking implementation evidence](bookings-implementation.md) and the [human API contract](../../docs/api-contract.md).

@@ -2,6 +2,8 @@
 
 Status: local spec; not published or labeled in an issue tracker. Business rules, architecture choices, and testing boundaries are confirmed. API details identified as proposed remain recommendations. Ticket 01 authentication is implemented and locally verified; see [evidence](auth-implementation.md).
 
+Implementation update (tickets 04–07): owned booking CRUD is implemented and locally verified; see [booking evidence](bookings-implementation.md). The user selected full date validation on every edit, superseding the earlier historical campground-only proposal below. Administrator access to others remains ticket 08.
+
 ## Problem Statement
 
 The team must adapt its Assignment 7 vaccination-appointment API into a campground-booking REST API for Topic 2 of 2110503 Software Development Practice.

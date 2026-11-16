@@ -1,6 +1,6 @@
 # API
 
-**Status:** registration, login, current user, and campground list/detail/create are implemented. Other endpoints remain proposed and unimplemented.
+**Status:** registration, login, current user, campgrounds, and owned booking CRUD are implemented. Administrator access to others’ bookings (08) and logout (09) remain unimplemented.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -16,10 +16,10 @@ Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bear
 | GET | `/campgrounds/:id` | Logged-in user | 200 |
 | POST | `/campgrounds` | Administrator | 201 |
 | POST | `/bookings` | Logged-in user; books for self | 201 |
-| GET | `/bookings` | Own bookings; administrator sees all | 200 |
-| GET | `/bookings/:id` | Owner or administrator | 200 |
-| PUT | `/bookings/:id` | Owner or administrator | 200 |
-| DELETE | `/bookings/:id` | Owner or administrator | 200 |
+| GET | `/bookings` | Own bookings; administrator sees all in ticket 08 | 200 |
+| GET | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
+| PUT | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
+| DELETE | `/bookings/:id` | Owner; administrator access to others in ticket 08 | 200 |
 
 No pagination, filter language, or nested booking endpoints planned.
 
@@ -85,3 +85,7 @@ GET `/bookings` returns only the caller's records ordered by ID ascending, with 
 ## Adopted booking updates (ticket 06)
 
 PUT `/bookings/:id` accepts a nonempty subset of `campgroundId`, `checkIn`, and `checkOut`. Check ownership before validating the body; reject unknown/ownership/authority fields with 400 (`Invalid booking fields`). Validate the complete merged stay on every edit, including campground-only edits: past dates fail with 400 (`Invalid booking dates`). Owners may reschedule a historical booking to valid current/future dates. Verify the destination exists, preserve the owner, and write the validated campground/date tuple together. Rejected updates preserve the stored booking. Success returns 200 with the public booking in `data`; administrators remain own-only until ticket 08.
+
+## Adopted booking deletion (ticket 07)
+
+DELETE `/bookings/:id` permanently removes an owned booking, including a historical stay, and returns 200 with `{ "success": true, "data": {} }`. Authentication and booking-ID/ownership checks use the read conventions. Repeated deletion returns 404. Denied requests preserve the booking; there is no soft deletion or cancellation status. Administrators remain own-only until ticket 08.

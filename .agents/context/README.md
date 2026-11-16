@@ -4,6 +4,8 @@ Detailed notes for agents. Human docs stay in `docs/`; the root README is the hu
 
 ## Read by task
 
+- Booking CRUD conventions, historical-edit decision, and local verification: [tickets 04–07 evidence](bookings-implementation.md).
+
 - Authentication implementation, baseline mapping, and local verification: [ticket 01 evidence](auth-implementation.md).
 - Campground read/seed conventions and verification: [ticket 02 evidence](campgrounds-implementation.md).
 

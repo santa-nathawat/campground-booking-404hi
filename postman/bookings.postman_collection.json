@@ -862,6 +862,283 @@
           }
         }
       ]
+    },
+    {
+      "name": "Reject cross-user deletion",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read after rejected deletion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Booking preserved', () => pm.expect(body.data.id).to.eql(pm.collectionVariables.get('BOOKING_ID')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated deletion",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete own booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty delete data', () => pm.expect(body.data).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read deleted booking",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete already removed booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "User B deletes own booking",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings/{{B_BOOKING_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Empty delete data', () => pm.expect(body.data).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm empty list for A",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Run bookings removed', () => { pm.expect(body.count).to.eql(0); pm.expect(body.data).to.eql([]); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm empty list for B",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{B_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Run bookings removed', () => { pm.expect(body.count).to.eql(0); pm.expect(body.data).to.eql([]); });"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

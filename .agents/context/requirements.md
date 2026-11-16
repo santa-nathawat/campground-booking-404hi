@@ -1,6 +1,6 @@
 # Requirements and acceptance checks
 
-Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Tickets 01–03 local checks passed; see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). See [administrator evidence](admin-campgrounds-implementation.md). Remaining acceptance checks are pending.
+Status: source-backed requirements and team business rules agreed. The proposed API conventions and verification procedure are documented separately for final review. Tickets 01–07 local checks passed; see [booking evidence](bookings-implementation.md). see [authentication evidence](auth-implementation.md) and [campground evidence](campgrounds-implementation.md). See [administrator evidence](admin-campgrounds-implementation.md). Remaining acceptance checks are pending.
 
 ## Authority and scope
 
@@ -14,7 +14,7 @@ Confirmed by the team: use repository `campground-booking-404hi`; write document
 | --- | --- | --- |
 | FR-01 | Register with name, telephone number, email, and password. | A valid registration succeeds; each required field is checked. Passwords are excluded from returned user data. |
 | FR-02 | Registered users log in with email/password and can log out. | Valid credentials authenticate; invalid credentials fail. Verify the agreed logout behavior explicitly. |
-| FR-03 | After login, book up to three nights at a chosen campground by specifying a date. Provide a campground list containing name, address, and telephone number. | Create valid stays of 1, 2, and 3 nights using check-in/check-out dates in the Thailand calendar. Reject past check-in, zero/negative duration, and stays longer than 3 nights on creation or changing dates. Verify listing fields. |
+| FR-03 | After login, book up to three nights at a chosen campground by specifying a date. Provide a campground list containing name, address, and telephone number. | Create valid stays of 1, 2, and 3 nights using check-in/check-out dates in the Thailand calendar. Reject past check-in, zero/negative duration, and stays longer than 3 nights on creation or every update (user decision during tickets 04–07). Verify listing fields. |
 | FR-04 | Users view their own bookings. | With users A and B, A's list contains A's bookings and excludes B's. Check any single-booking and nested views too. |
 | FR-05 | Users edit their own bookings. | A can edit A's booking; A cannot edit B's booking. Edited stays satisfy the same duration rule. |
 | FR-06 | Users delete their own bookings. | A can delete A's booking; A cannot delete B's booking. Verify removal. |
