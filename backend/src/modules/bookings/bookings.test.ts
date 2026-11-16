@@ -308,3 +308,56 @@ describe('booking updates', () => {
     expect((await update(id, stay)).status).toBe(200);
   });
 });
+
+describe('booking deletion', () => {
+  const remove = (id: string, credential = token) => request(app).delete(`/api/v1/bookings/${id}`).auth(credential, { type: 'bearer' });
+  it.each([false, true])('permanently deletes an owned booking (historical: %s)', async historical => {
+    const booking = await Booking.create({ owner: ownerId, campground: campgroundId, ...(historical ? { checkIn: '2020-01-01', checkOut: '2020-01-02' } : stay) });
+    const other = await create({ campgroundId, ...stay }, otherToken);
+    const response = await remove(booking.id);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ success: true, data: {} });
+    expect(await Booking.findById(booking.id)).toBeNull();
+    expect(await Booking.countDocuments()).toBe(1);
+    expect(await Booking.findById(other.body.data.id)).not.toBeNull();
+    expect((await request(app).get(`/api/v1/bookings/${booking.id}`).auth(token, { type: 'bearer' })).status).toBe(404);
+    expect((await request(app).get('/api/v1/bookings').auth(token, { type: 'bearer' })).body).toEqual({ success: true, count: 0, data: [] });
+    expect((await remove(booking.id)).status).toBe(404);
+  });
+  it('denies cross-user deletion, including administrators, and preserves the record', async () => {
+    const booking = await Booking.create({ owner: ownerId, campground: campgroundId, ...stay });
+    const before = await Booking.findById(booking.id).lean();
+    for (const role of ['user', 'admin']) {
+      await User.findByIdAndUpdate(otherId, { role });
+      const response = await remove(booking.id, otherToken);
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ success: false, message: 'Booking access denied' });
+      expect(await Booking.findById(booking.id).lean()).toEqual(before);
+    }
+    await User.findByIdAndUpdate(otherId, { role: 'user' });
+    await User.findByIdAndUpdate(ownerId, { role: 'admin' });
+    expect((await remove(booking.id)).status).toBe(200);
+  });
+  it('requires authentication before ID validation and preserves the booking', async () => {
+    const booking = await Booking.create({ owner: ownerId, campground: campgroundId, ...stay });
+    const before = await Booking.findById(booking.id).lean();
+    for (const id of [booking.id, 'invalid']) {
+      for (const header of ['', 'Bearer invalid', `Bearer ${jwt.sign({}, secret, { subject: ownerId, expiresIn: -1 })}`]) {
+        const response = await request(app).delete(`/api/v1/bookings/${id}`).set('Authorization', header);
+        expect(response.status).toBe(401);
+        expect(response.body).toEqual({ success: false, message: 'Not authorized' });
+      }
+    }
+    expect(await Booking.findById(booking.id).lean()).toEqual(before);
+  });
+  it('uses documented malformed and missing ID errors', async () => {
+    for (const id of ['invalid', '123456789012', 'g'.repeat(24)]) {
+      const response = await remove(id);
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ success: false, message: 'Invalid booking identifier' });
+    }
+    const response = await remove(new mongoose.Types.ObjectId().toString());
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ success: false, message: 'Booking not found' });
+  });
+});

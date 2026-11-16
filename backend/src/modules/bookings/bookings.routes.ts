@@ -9,5 +9,6 @@ export function createBookingsRouter(secret: string) {
   router.get('/', controller.list);
   router.get('/:id', controller.detail);
   router.put('/:id', controller.update);
+  router.delete('/:id', controller.remove);
   return router;
 }

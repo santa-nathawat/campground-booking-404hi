@@ -66,3 +66,9 @@ export async function updateBooking(id: string, ownerId: string, body: unknown) 
   if (!updated) throw new HttpError(404, 'Booking not found');
   return publicBooking(updated);
 }
+
+export async function deleteBooking(id: string, ownerId: string) {
+  const booking = await ownedBooking(id, ownerId);
+  const result = await Booking.deleteOne({ _id: booking._id, owner: ownerId });
+  if (result.deletedCount === 0) throw new HttpError(404, 'Booking not found');
+}

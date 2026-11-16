@@ -24,3 +24,8 @@ export const update: RequestHandler<{ id: string }> = async (req, res) => {
   const data = await bookings.updateBooking(req.params.id, res.locals.user.id, req.body);
   res.json({ success: true, data });
 };
+
+export const remove: RequestHandler<{ id: string }> = async (req, res) => {
+  await bookings.deleteBooking(req.params.id, res.locals.user.id);
+  res.json({ success: true, data: {} });
+};
