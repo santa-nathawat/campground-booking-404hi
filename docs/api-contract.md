@@ -73,3 +73,7 @@ Campground creation requires the current stored administrator role. Accept exact
 
 Logout (ticket 09, not implemented) clears any issued auth cookie. Postman clears its saved TOKEN after success.
 A copied unexpired JWT remains usable. Ticket 01 uses Bearer JWT transport only.
+
+## Adopted booking creation (ticket 04)
+
+POST `/bookings` accepts exactly `campgroundId`, `checkIn`, and `checkOut`. Store dates as validated `YYYY-MM-DD` strings. Return 201 with `{ id, ownerId, campground, checkIn, checkOut }` in `data`; campground contains `id`, `name`, `address`, and `telephone`. Owner comes from authentication. Overlaps and more than three bookings are allowed. Invalid fields/dates return 400 (`Invalid booking fields` / `Invalid booking dates`); campground errors follow the existing 400/404 convention.
