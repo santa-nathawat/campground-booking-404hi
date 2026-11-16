@@ -1,6 +1,6 @@
 # Verification
 
-**Status:** Tickets 01–02 pass 72 automated tests and local Postman runs (auth: 9 requests/26 assertions; browse: 11 requests/40 assertions), with zero failures. Type checking and build pass. Atlas and full-project checks remain pending.
+**Status:** Tickets 01–03 pass 98 automated tests and local Postman runs (auth: 9 requests/26 assertions; browse: 11 requests/40 assertions; administrator creation: 10 requests/29 assertions), with zero failures. Type checking and build pass. Atlas and full-project checks remain pending.
 
 Run `npm run typecheck`, `npm run build`, and `npm test` from `backend/`. See the [Postman instructions](../postman/README.md) for HTTP requests.
 
@@ -40,3 +40,5 @@ Report individual failures. Do not claim results for untested load.
 6. Baseline comparison, diagrams, contributors, presentation, live demo.
 
 Authentication/campground HTTP tests use Vitest/Supertest with isolated MongoDB; seed tests execute `npm run seed:campgrounds` directly against a separate temporary database. They verify repeat runs, partial restoration, edited/unrelated campground preservation, and unchanged raw bookings. Detailed [ticket 02 evidence](../.agents/context/campgrounds-implementation.md) records local conditions. Versions are locked in `backend/package-lock.json`. Deployment remains undecided. No Atlas timing claim is made.
+
+Administrator tests execute `npm run setup:admin` directly against isolated MongoDB, then log in and create/browse through HTTP. They cover invalid/missing inputs, hashed passwords, duplicate ordinary/admin email preservation, database failures, and sanitized errors. Campground POST tests cover validation, denied access, persistence, and current stored roles. See [ticket 03 evidence](../.agents/context/admin-campgrounds-implementation.md).

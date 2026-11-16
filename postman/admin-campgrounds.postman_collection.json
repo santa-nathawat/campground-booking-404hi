@@ -1,0 +1,448 @@
+{
+  "info": {
+    "name": "Campground Booking \u2014 Ticket 03 Administrator Creation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Provision an administrator through npm run setup:admin first. Supply ADMIN_EMAIL and ADMIN_PASSWORD locally. Run against a designated test database. Creates an ordinary user and campground; preserves existing data. Clear credentials and tokens before export."
+  },
+  "variable": [
+    {
+      "key": "TOKEN",
+      "value": ""
+    },
+    {
+      "key": "ADMIN_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "RUN_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "RUN_PASSWORD",
+      "value": ""
+    },
+    {
+      "key": "CAMPGROUND_ID",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Reject unauthenticated creation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Created Campground\",\n  \"address\": \"1 Fictional Test Road\",\n  \"telephone\": \"0012345678\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "['ADMIN_TOKEN', 'TOKEN', 'CAMPGROUND_ID'].forEach(key => pm.collectionVariables.set(key, ''));",
+              "pm.collectionVariables.set('RUN_EMAIL', 'admin-suite-' + pm.variables.replaceIn('{{$guid}}') + '@example.test');",
+              "pm.collectionVariables.set('RUN_PASSWORD', pm.variables.replaceIn('{{$guid}}'));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject public administrator registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Ordinary User\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\",\n  \"role\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register ordinary user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Ordinary User\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{RUN_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Ordinary role', () => pm.expect(body.data.role).to.eql('user'));",
+              "if (pm.response.code === 201) pm.collectionVariables.set('TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject ordinary user creation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Created Campground\",\n  \"address\": \"1 Fictional Test Road\",\n  \"telephone\": \"0012345678\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Log in provisioned administrator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{ADMIN_EMAIL}}\",\n  \"password\": \"{{ADMIN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Administrator role', () => pm.expect(body.data.role).to.eql('admin'));",
+              "pm.test('No password hash', () => pm.expect(body.data).not.to.have.property('passwordHash'));",
+              "if (pm.response.code === 200) pm.collectionVariables.set('ADMIN_TOKEN', body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject missing required field",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Created Campground\",\n  \"telephone\": \"0012345678\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unexpected field",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Created Campground\",\n  \"address\": \"1 Fictional Test Road\",\n  \"telephone\": \"0012345678\",\n  \"owner\": \"untrusted\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create campground as administrator",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{ADMIN_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Created Campground\",\n  \"address\": \"1 Fictional Test Road\",\n  \"telephone\": \"0012345678\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Public fields only', () => pm.expect(Object.keys(body.data).sort()).to.eql(['address', 'id', 'name', 'telephone']));",
+              "pm.test('Persisted identifier', () => pm.expect(body.data.id).to.match(/^[a-f0-9]{24}$/));",
+              "pm.test('Contact data preserved', () => { pm.expect(body.data.name).to.eql('Postman Created Campground'); pm.expect(body.data.address).to.eql('1 Fictional Test Road'); pm.expect(body.data.telephone).to.eql('0012345678'); });",
+              "if (pm.response.code === 201) pm.collectionVariables.set('CAMPGROUND_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ordinary user sees created campground",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Created campground visible', () => pm.expect(body.data.some(item => item.id === pm.collectionVariables.get('CAMPGROUND_ID'))).to.eql(true));",
+              "pm.test('Count matches list', () => pm.expect(body.count).to.eql(body.data.length));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read created campground detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds/{{CAMPGROUND_ID}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('Created destination returned', () => { pm.expect(body.data.id).to.eql(pm.collectionVariables.get('CAMPGROUND_ID')); pm.expect(body.data.telephone).to.eql('0012345678'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

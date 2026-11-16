@@ -1,6 +1,6 @@
 # Requirements
 
-**Status:** agreed business rules. Tickets 01–02 authentication, campground reads, and seeding are implemented; remaining features are pending.
+**Status:** agreed business rules. Tickets 01–03 authentication, campground reads/seeding, and administrator setup/creation are implemented; remaining features are pending.
 
 ## Users and bookings
 

@@ -27,3 +27,13 @@ postman collection run postman/campgrounds.postman_collection.json -e postman/lo
 Eleven requests/40 assertions cover registration/login, listing and selecting a seeded campground, public response fields, string telephone preservation, denied list/detail access, malformed/missing IDs, and authentication before ID validation. The collection saves the selected campground ID and telephone at runtime and creates a fresh ordinary user independently of the authentication collection. Committed variables are empty.
 
 The browse collection expects all three demo fixtures and a telephone beginning with zero on the first fixture. Use a fresh temporary database for repeatable fixture assertions; seeding intentionally preserves any locally edited fixtures. Raw booking preservation, empty lists, expired tokens, and administrator reads are checked by the automated suite. These local functional checks do not establish Atlas timing compliance.
+
+## Administrator campground creation
+
+Provision an administrator through `npm run setup:admin` first, using the API's designated test database. Set `ADMIN_EMAIL` and secret `ADMIN_PASSWORD` locally in the environment; committed values are empty. Import `admin-campgrounds.postman_collection.json` and run in order:
+
+```sh
+postman collection run postman/admin-campgrounds.postman_collection.json -e postman/local.postman_environment.json --no-report-events
+```
+
+Ten requests cover unauthenticated denial, rejected public role escalation, ordinary-user registration/denial, administrator login, missing/unknown field rejection, successful creation, and ordinary-user list/detail visibility. It creates one ordinary account and one campground per run, preserves existing records, and needs no seeded destinations. There is no public cleanup endpoint; use a temporary database for disposable runs. Clear locally supplied credentials and generated tokens before exporting. Automated tests additionally execute the setup command, check duplicate-account preservation, and verify revoked administrator access with an existing token.

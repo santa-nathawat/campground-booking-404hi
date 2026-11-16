@@ -1,6 +1,6 @@
 # API contract
 
-Status: Tickets 01–02 adopt authentication and campground read contracts; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, current-user, and campground list/detail endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
+Status: Tickets 01–03 adopt authentication and campground read/create contracts; other concrete conventions remain proposed. Business behavior is agreed in [requirements](requirements.md); exact paths, JSON field names, response envelopes, and status choices below are recommendations. Registration, login, current-user, and campground list/detail/create endpoints are implemented; see [authentication conventions](auth-implementation.md) and [campground conventions](campgrounds-implementation.md).
 
 ## Conventions
 
@@ -78,3 +78,5 @@ Authentication/role middleware runs before protected resource operations. For bo
 ## Logout limits
 
 Propose retaining the lecture's GET logout path and token response style for easy comparison. The Postman logout request clears its saved TOKEN after a successful response; the server clears an authentication cookie if one was issued. A subsequent request without credentials returns 401. A separately copied unexpired JWT may still authenticate, as explicitly accepted in ADR-0007. Do not describe client token deletion as server-side revocation. Ticket 01 issues and accepts no cookies; authentication uses Bearer JWTs. Logout remains ticket 09.
+
+Ticket 03 implements administrator campground POST with strict trimmed nonempty string fields, current stored role enforcement, and the existing public serializer. See [administrator conventions and evidence](admin-campgrounds-implementation.md).

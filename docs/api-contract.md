@@ -1,6 +1,6 @@
 # API
 
-**Status:** registration, login, current user, and campground list/detail are implemented. Other endpoints remain proposed and unimplemented.
+**Status:** registration, login, current user, and campground list/detail/create are implemented. Other endpoints remain proposed and unimplemented.
 
 Base path: `/api/v1`. JSON requests. Protected requests use `Authorization: Bearer <token>`.
 
@@ -50,6 +50,8 @@ Authentication validation: required nonempty string contact fields; telephone st
 Hash passwords with salted bcrypt at cost 10. Never trim passwords. Public users contain `id`, `name`, `telephone`, `email`, and `role`. Authentication uses one-hour HS256 Bearer JWTs with account ID in `sub`; middleware loads the current stored account. No cookies are issued or accepted.
 
 Campground reads return only `id`, `name`, `address`, and string `telephone`. Lists are ordered by `_id` ascending and include all destinations; an empty list returns `count: 0` and `data: []`. Authentication runs before ID validation. Detail accepts 24-character hexadecimal MongoDB IDs; malformed IDs return 400 (`Invalid campground identifier`) and absent valid IDs return 404 (`Campground not found`).
+
+Campground creation requires the current stored administrator role. Accept exactly `name`, `address`, and `telephone` as trimmed, nonempty strings. Invalid fields or unknown keys return 400 (`Invalid campground fields`). Ordinary users receive 403 (`Administrator access required`) before field validation; missing/invalid authentication receives 401. Success returns 201 with the persisted public campground in `data`, using the same four fields as reads. Created destinations immediately appear in browsing results.
 
 ## Responses
 
