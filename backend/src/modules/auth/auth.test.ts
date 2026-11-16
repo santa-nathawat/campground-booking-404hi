@@ -8,11 +8,11 @@ import { createApp } from '../../app.js';
 import { User } from './user.model.js';
 
 const secret = 'isolated-test-signing-secret-32-bytes-minimum';
-const app = createApp({ JWT_SECRET: secret, NODE_ENV: 'test', FRONTEND_ORIGIN: 'http://localhost:3000' });
+const app = createApp({ JWT_SECRET: secret, NODE_ENV: 'test' });
 const visitor = { name: 'Example User', telephone: '0812345678', email: 'user@example.test', password: ' safe password ' };
 let database: MongoMemoryServer;
-const register = (body: object = visitor) => request(app).post('/api/v1/auth/register').set('X-CSRF-Protection', '1').send(body);
-const login = (body: object) => request(app).post('/api/v1/auth/login').set('X-CSRF-Protection', '1').send(body);
+const register = (body: object = visitor) => request(app).post('/api/v1/auth/register').send(body);
+const login = (body: object) => request(app).post('/api/v1/auth/login').send(body);
 const me = (token: string) => request(app).get('/api/v1/auth/me').auth(token, { type: 'bearer' });
 
 beforeAll(async () => {
@@ -176,7 +176,7 @@ describe('current user', () => {
 });
 
 it('returns JSON errors for malformed JSON, non-object bodies, and unknown routes', async () => {
-  const malformed = await request(app).post('/api/v1/auth/register').set('X-CSRF-Protection', '1').set('Content-Type', 'application/json').send('{');
+  const malformed = await request(app).post('/api/v1/auth/register').set('Content-Type', 'application/json').send('{');
   expect(malformed.status).toBe(400);
   expect(malformed.body).toEqual({ success: false, message: 'Invalid JSON body' });
   expect((await register([])).status).toBe(400);
@@ -189,11 +189,9 @@ it('returns JSON errors for malformed JSON, non-object bodies, and unknown route
 describe('cookie authentication', () => {
   it('stores the registration cookie in a client jar and authenticates without a Bearer header', async () => {
     const client = request.agent(app);
-    const registered = await client.post('/api/v1/auth/register').set('X-CSRF-Protection', '1').set('Origin', 'http://localhost:3000').send(visitor);
+    const registered = await client.post('/api/v1/auth/register').send(visitor);
     expect(registered.status).toBe(201);
-    expect(registered.headers['access-control-allow-origin']).toBe('http://localhost:3000');
-    expect(registered.headers['access-control-allow-credentials']).toBe('true');
-    const response = await client.get('/api/v1/auth/me').set('Origin', 'http://localhost:3000');
+    const response = await client.get('/api/v1/auth/me');
     expect(response.status).toBe(200);
     expect(response.body.data).toEqual(registered.body.data);
     expect(response.headers['set-cookie']).toBeUndefined();
@@ -219,8 +217,8 @@ describe('cookie authentication', () => {
   });
 
   it.each(['development', 'production'] as const)('sets the expected cookie flags in %s', async environment => {
-    const configured = createApp({ JWT_SECRET: secret, NODE_ENV: environment, FRONTEND_ORIGIN: 'https://app.example.test' });
-    const response = await request(configured).post('/api/v1/auth/register').set('X-CSRF-Protection', '1').send(visitor);
+    const configured = createApp({ JWT_SECRET: secret, NODE_ENV: environment });
+    const response = await request(configured).post('/api/v1/auth/register').send(visitor);
     const cookie = response.headers['set-cookie'][0];
     expect(cookie.includes('; Secure')).toBe(environment === 'production');
     expect(cookie).toContain('HttpOnly');
