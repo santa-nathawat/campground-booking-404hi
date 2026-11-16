@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import { protect } from '../../middleware/auth.js';
 import { createAuthController } from './auth.controller.js';
-import type { AuthConfig } from './auth.settings.js';
 
-export function createAuthRouter(config: AuthConfig) {
+export function createAuthRouter(secret: string) {
   const router = Router();
-  const controller = createAuthController(config);
+  const controller = createAuthController(secret);
   router.post('/register', controller.register);
   router.post('/login', controller.login);
-  router.get('/me', protect(config.JWT_SECRET), controller.me);
+  router.get('/me', protect(secret), controller.me);
   return router;
 }

@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { HttpError } from '../../middleware/errors.js';
 import { User, publicUser } from './user.model.js';
-import { TOKEN_TTL_SECONDS } from './auth.settings.js';
 
 type Registration = { name: string; telephone: string; email: string; password: string };
 
@@ -32,7 +31,7 @@ export async function login(email: string, password: string) {
 }
 
 export function issueToken(userId: string, secret: string) {
-  return jwt.sign({}, secret, { algorithm: 'HS256', subject: userId, expiresIn: TOKEN_TTL_SECONDS });
+  return jwt.sign({}, secret, { algorithm: 'HS256', subject: userId, expiresIn: '1h' });
 }
 
 export async function authenticate(token: string, secret: string) {
