@@ -13,7 +13,8 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "seed:campgrounds": "tsx src/scripts/seed-campgrounds.ts",
-    "setup:admin": "tsx src/scripts/setup-admin.ts"
+    "setup:admin": "tsx src/scripts/setup-admin.ts",
+    "verify:demo": "npm run build && node scripts/verify-demo.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
