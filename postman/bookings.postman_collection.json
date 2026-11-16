@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "Campground Booking \u2014 Tickets 04\u201307",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Run in order against a designated test database after seeding campgrounds. Runtime-only credentials and IDs. Creates two accounts; cleanup removes only this run\u2019s bookings."
+  },
+  "variable": [
+    {
+      "key": "A_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "B_TOKEN",
+      "value": ""
+    },
+    {
+      "key": "A_ID",
+      "value": ""
+    },
+    {
+      "key": "B_ID",
+      "value": ""
+    },
+    {
+      "key": "RUN_PASSWORD",
+      "value": ""
+    },
+    {
+      "key": "A_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "B_EMAIL",
+      "value": ""
+    },
+    {
+      "key": "CAMPGROUND_ID",
+      "value": ""
+    },
+    {
+      "key": "SECOND_CAMPGROUND_ID",
+      "value": ""
+    },
+    {
+      "key": "BOOKING_ID",
+      "value": ""
+    },
+    {
+      "key": "B_BOOKING_ID",
+      "value": ""
+    },
+    {
+      "key": "CHECK_IN",
+      "value": ""
+    },
+    {
+      "key": "CHECK_OUT",
+      "value": ""
+    },
+    {
+      "key": "FOUR_NIGHTS",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register user A",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Booking user A\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{A_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "['A_TOKEN','B_TOKEN','A_ID','B_ID','BOOKING_ID','B_BOOKING_ID','CAMPGROUND_ID','SECOND_CAMPGROUND_ID'].forEach(k => pm.collectionVariables.set(k, ''));",
+              "const guid = pm.variables.replaceIn('{{$guid}}');",
+              "pm.collectionVariables.set('RUN_PASSWORD', guid);",
+              "pm.collectionVariables.set('A_EMAIL', 'booking-a-' + guid + '@example.test');",
+              "pm.collectionVariables.set('B_EMAIL', 'booking-b-' + guid + '@example.test');",
+              "const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());",
+              "const get = name => parts.find(p => p.type === name).value;",
+              "const start = new Date(get('year') + '-' + get('month') + '-' + get('day') + 'T00:00:00Z');",
+              "const day = n => new Date(start.getTime() + n * 86400000).toISOString().slice(0, 10);",
+              "pm.collectionVariables.set('CHECK_IN', day(1));",
+              "pm.collectionVariables.set('CHECK_OUT', day(4));",
+              "pm.collectionVariables.set('FOUR_NIGHTS', day(5));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.collectionVariables.set('A_TOKEN', body.token);",
+              "pm.collectionVariables.set('A_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Register user B",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/auth/register",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Booking user B\",\n  \"telephone\": \"0812345678\",\n  \"email\": \"{{B_EMAIL}}\",\n  \"password\": \"{{RUN_PASSWORD}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.collectionVariables.set('B_TOKEN', body.token);",
+              "pm.collectionVariables.set('B_ID', body.data.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Select seeded campgrounds",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{BASE_URL}}/api/v1/campgrounds",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.test('At least two destinations', () => pm.expect(body.data.length).to.be.at.least(2));",
+              "pm.collectionVariables.set('CAMPGROUND_ID', body.data[0].id);",
+              "pm.collectionVariables.set('SECOND_CAMPGROUND_ID', body.data[1].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject unauthenticated creation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', () => pm.response.to.have.status(401));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create owned three-night booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(true));",
+              "pm.collectionVariables.set('BOOKING_ID', body.data.id);",
+              "pm.test('Owner is caller', () => pm.expect(body.data.ownerId).to.eql(pm.collectionVariables.get('A_ID')));",
+              "pm.test('Campground details', () => pm.expect(body.data.campground).to.have.all.keys('id','name','address','telephone'));",
+              "pm.test('Booking dates', () => { pm.expect(body.data.checkIn).to.eql(pm.collectionVariables.get('CHECK_IN')); pm.expect(body.data.checkOut).to.eql(pm.collectionVariables.get('CHECK_OUT')); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject four-night booking",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{FOUR_NIGHTS}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject client-selected owner",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{BASE_URL}}/api/v1/bookings",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{A_TOKEN}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"campgroundId\": \"{{CAMPGROUND_ID}}\",\n  \"checkIn\": \"{{CHECK_IN}}\",\n  \"checkOut\": \"{{CHECK_OUT}}\",\n  \"ownerId\": \"{{B_ID}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "const body = pm.response.json();",
+              "pm.test('Success envelope', () => pm.expect(body.success).to.eql(false));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -21,7 +21,7 @@ export function validateStay(checkIn: string, checkOut: string, now = new Date()
     timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit',
   }).formatToParts(now);
   const part = (name: string) => parts.find(value => value.type === name)!.value;
-  const today = `${part('year')}-${part('month')}-${part('day')}`;
+  const today = `${part('year').padStart(4, '0')}-${part('month')}-${part('day')}`;
   const start = calendarDay(checkIn);
   const end = calendarDay(checkOut);
   if (!Number.isFinite(start) || !Number.isFinite(end)
