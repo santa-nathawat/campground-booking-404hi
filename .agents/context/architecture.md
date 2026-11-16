@@ -1,0 +1,77 @@
+# Architecture
+
+Status: documentation only. The language, framework, database, persistence library, module format, module grouping, and JWT approach are accepted in the [ADRs](decisions.md). The following file layout and concrete field conventions make those decisions reviewable before implementation; files shown below do not exist yet.
+
+## Backend organization
+
+```text
+backend/
+  src/
+    app.ts
+    server.ts
+    config/
+    middleware/
+    modules/
+      auth/
+        auth.routes.ts
+        auth.controller.ts
+        auth.service.ts
+        auth.test.ts
+        user.model.ts
+      campgrounds/
+        campgrounds.routes.ts
+        campgrounds.controller.ts
+        campgrounds.service.ts
+        campgrounds.test.ts
+        campground.model.ts
+      bookings/
+        bookings.routes.ts
+        bookings.controller.ts
+        bookings.service.ts
+        bookings.test.ts
+        booking.model.ts
+    scripts/
+```
+
+Each module owns a route group, not one HTTP method/path pair. For example, auth owns register, login, and logout routes. Shared infrastructure outside `modules/` serves application setup, configuration, database connection, middleware, and setup scripts.
+
+| Part | Responsibility |
+| --- | --- |
+| App setup | Assemble JSON parsing, middleware, routes, and error handling; allow tests to use the application without opening a listening port. |
+| Server startup | Validate required environment configuration, connect to Atlas, and start listening only after a successful database connection. |
+| Routes | Bind HTTP methods/paths to middleware and controllers. |
+| Controllers | Translate validated HTTP inputs to service calls and service results/errors to HTTP responses. |
+| Services | Apply booking rules, authorization policy, and persistence operations. |
+| Models | Define Mongoose schemas and persistence behavior; owned by their module. |
+| Middleware | Verify authentication, load the current user, check route-level roles, validate requests, and translate errors consistently. |
+| Scripts | Seed campgrounds or provision an administrator through explicitly invoked commands. |
+
+The request flow extends the lecture example: HTTP -> middleware -> route/controller -> service -> model -> MongoDB. Sequence diagrams must show actual implemented behavior, including relevant denied branches.
+
+## Data responsibilities
+
+Field names below are proposed conventions, not source requirements. Date-only storage is also proposed to make calendar-night semantics explicit.
+
+| Model owner | Principal data | Invariants |
+| --- | --- | --- |
+| `auth` / User | ID, name, telephone, email, password hash, role | Required registration fields; unique email; only `user` and `admin` roles; password hash excluded from API representations. |
+| `campgrounds` / Campground | ID, name, address, telephone | All three descriptive fields required; return campground data without private booking lists. |
+| `bookings` / Booking | ID, owner reference, campground reference, check-in, check-out | Existing user and campground; fixed owner; 1-3 nights; date changes satisfy the Thailand-calendar rule. |
+
+Propose storing check-in and check-out as validated `YYYY-MM-DD` date-only strings. Calculate nights as the difference between calendar dates, not local-time hour arithmetic. Determine today's date using `Asia/Bangkok`. Reject nonexistent dates, timestamp inputs, and impossible ranges. The API contract provides examples.
+
+There is no pitch, capacity, payment, or cancellation-status entity. Delete means remove the booking; no soft-delete workflow is currently specified. Ordinary users have no generic user-update or role-update endpoint.
+
+## Authorization boundary
+
+The authenticated user determines ownership on creation. Neither a user nor an administrator supplies another owner when making a booking. List queries scope ordinary users to their own records. Single-record reads and writes verify owner-or-administrator access. Updating a booking cannot change its owner.
+
+JWT verification establishes the claimed identity; load the current user to ensure the account still exists and use its current role for authorization. Never trust an incoming registration role or a body-supplied booking owner. No fallback administrator or fallback signing secret is carried over from Assignment 7.
+
+Expired bookings remain available for viewing/deletion. If only the campground changes on an old booking, do not reject it solely because the unchanged dates are in the past; verify the destination exists. If either date changes, validate the resulting entire date pair against today's date and the duration limit.
+
+## Setup responsibilities
+
+The team provisions the Atlas cluster/database. Application setup must document required environment-variable names using placeholders. Credentials and connection strings stay local. The future campground seed command inserts missing fixture records using stable seed identities and preserves existing records and bookings; it is not a database-reset command. Administrator provisioning is separate and takes credentials from explicit local input/configuration rather than source literals.
+
+The exact command names and configuration format must be documented once implementation exists. No setup, Atlas connection, seed, or application startup is claimed to have been executed.
