@@ -1,6 +1,6 @@
 # Verification
 
-**Status:** Tickets 01–07 pass 150 automated tests and four local Postman collections (59 requests/170 assertions total, including bookings: 29/75), with zero failures. Type checking and build pass. Administrator access to others’ bookings (08), logout (09), Atlas, and full-project timing checks remain pending. See [booking evidence](../.agents/context/bookings-implementation.md).
+**Status:** Tickets 01–08 pass 163 automated tests and five local Postman collections (117 requests/344 assertions total, including administrator bookings: 58/174), with zero failures. Type checking and build pass. Logout (09), Atlas, and full-project timing checks remain pending. See [ticket 08 evidence](../.agents/context/admin-bookings-implementation.md).
 
 Run `npm run typecheck`, `npm run build`, and `npm test` from `backend/`. See the [Postman instructions](../postman/README.md) for HTTP requests.
 
@@ -44,3 +44,5 @@ Authentication/campground HTTP tests use Vitest/Supertest with isolated MongoDB;
 Administrator tests execute `npm run setup:admin` directly against isolated MongoDB, then log in and create/browse through HTTP. They cover invalid/missing inputs, hashed passwords, duplicate ordinary/admin email preservation, database failures, and sanitized errors. Campground POST tests cover validation, denied access, persistence, and current stored roles. See [ticket 03 evidence](../.agents/context/admin-campgrounds-implementation.md).
 
 Booking HTTP tests cover creation/persistence, both users’ privacy, strict fields, all stay durations and calendar boundaries, merged updates, rejected historical edits and valid rescheduling, and permanent deletion. Postman verifies the owned lifecycle against the built local API; these runs do not establish Atlas timing compliance.
+
+Administrator booking HTTP tests cover the three-owner access matrix, personal bookings, immutable ownership, strict fields, merged dates, historical stays, and current stored roles with existing tokens. The dedicated Postman collection verifies cross-owner management and removes only its run’s bookings; an unrelated historical booking was preserved in the local verification run.

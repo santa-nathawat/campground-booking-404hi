@@ -1,6 +1,6 @@
 # Requirements
 
-**Status:** agreed business rules. Tickets 01–07 authentication, campgrounds, and owned booking CRUD are implemented. Administrator access to other users’ bookings (08) and logout (09) remain pending.
+**Status:** agreed business rules. Tickets 01–08 authentication, campgrounds, and owner/administrator booking CRUD are implemented. Logout (09) remains pending.
 
 ## Users and bookings
 
